@@ -41,12 +41,19 @@ class Line {
 		this->y2 = y2;
 	}
 
-	void draw(char* fbp, char color[3]){
+	void moveLine(int dx, int dy) {
+		this->x1 += dx;
+		this->y1 += dy;
+		this->x2 += dx;
+		this->y2 += dy;
+	}
 
+	void draw(char* fbp, char color[3]){
+		draw(fbp, this->x2, this->y2, color);
 	}
 
 	void draw(char* fbp, int x2, int y2, char color[3]) {
-
+		//use bresenham algorithm here
 	} 
 
 	void animateDrawing(char* fbp, int dt, int color_num, char (*colors)[3]){
@@ -63,7 +70,8 @@ class Line {
 
 		int tempx2 = x1 + (int)((x2-x1) * phase);
 		int tempy2 = y1 + (int)((y2-y1) * phase);
-		this.draw(fbp, tempx2, tempy2, colors[i]);
+
+		this->draw(fbp, tempx2, tempy2, colors[i]);
 		timePassed += dt;
 	}
 

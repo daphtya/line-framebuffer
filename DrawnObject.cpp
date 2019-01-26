@@ -31,6 +31,24 @@ public:
 		line_number++;
 	}
 
+	void moveObject(int dx, int dy) {
+		for (int i = 0; i < line_number; i++) {
+			lines[i].moveLine(dx, dy);
+		}
+	}
+
+	int* getCenter() {
+		int sumx = 0;
+		int sumy = 0;
+		int point_num = 2*line_number;
+		for (int i = 0; i < line_number; i++) {
+			sumx += lines[i].x1 + lines[i].x2;
+			sumy += lines[i].y1 + lines[i].y2;
+		}
+		int center[] = {sumx/point_num, sumy/point_num};
+		return center;
+	}
+
 	void draw(char* fbp) {
 		for (int i = 0; i < line_number; i++){
 			lines[i].draw(fbp);
