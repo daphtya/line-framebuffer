@@ -28,6 +28,11 @@ extern int32 BITS_PER_PIXEL;
 extern int32 X_LENGTH;
 extern int32 Y_LENGTH;
 
+/*
+ * Framebuffer device
+ */
+extern char* FBP;
+
 struct pixel {
     int red;
     int green;
@@ -69,19 +74,19 @@ args convert_to_args(int x1, int y1, int x2, int y2, struct pixel** logo, int w,
  * Initialize information about screen
  * In order to use putpixel, this procedure must be called before any call of putpixel.
  * 
+ * @input fbp   - the framebuffer device
  * @input vinfo - retrieved by calling FBIOGET_VSCREENINFO using ioctl
  * @input finfo - retrieved by calling FBIOGET_FSCREENINFO using ioctl
  */ 
-void initScreenInfo(fb_vinfo vinfo, fb_finfo finfo);
+void initScreenInfo(char* fbp, fb_vinfo vinfo, fb_finfo finfo);
 /**
  * Put pixel to specified position (x, y) on the screen
  * 
- * @input fbp   - Framebuffer device
  * @input x     - x position in the screen
  * @input y     - y position in the screen
  * @input color - 24 bits representation of color: red | green | blue. 
  *                Example for red: 11111111 00000000 00000000 or as integer 16711680
  */ 
-void putpixel(char* fbp, int x, int y, int32 color);
+void putpixel(int x, int y, int32 color);
 
 #endif

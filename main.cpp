@@ -48,7 +48,7 @@ int main(int argc, char **args) {
     printf("The framebuffer device was mapped to memory successfully.\n");
 
     // Initialize screen information
-    initScreenInfo(vinfo, finfo);
+    initScreenInfo(fbp, vinfo, finfo);
 
     // Draw diagonal line
     clear_screen(fbp, screensize);
@@ -59,23 +59,25 @@ int main(int argc, char **args) {
     Line line5(0, vinfo.yres/2, vinfo.xres, vinfo.yres/2);
     Pesawat p1 (vinfo.xres/2, vinfo.yres/2, true);
 
-    line.draw(fbp, BLUE | RED); //purple
-    line2.draw(fbp, RED | GREEN); //yellow
-    line3.draw(fbp, BLUE);
-    line4.draw(fbp, BLUE | GREEN);
-    line5.draw(fbp, GREEN);
+    int32 colors[] = {RED, GREEN, BLUE};
+
+    line.draw(3, colors); //purple
+    line2.draw(RED | GREEN); //yellow
+    line3.draw(BLUE);
+    line4.draw(BLUE | GREEN);
+    line5.draw(GREEN);
 
     //draw loop
 
-    while (true) {
-        // update position of all objects
-        p1.update();
-        // draw objects
-        p1.draw(fbp);
-        //delay before next frame
-        usleep(1000);
-        clear_screen(fbp, screensize);
-    }
+    // while (true) {
+    //     // update position of all objects
+    //     p1.update();
+    //     // draw objects
+    //     p1.draw(fbp);
+    //     //delay before next frame
+    //     usleep(1000);
+    //     clear_screen(fbp, screensize);
+    // }
 
 
 	return 0;
