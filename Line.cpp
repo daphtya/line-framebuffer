@@ -8,6 +8,7 @@
 #include <string.h>
 #include <math.h>
 #include <pthread.h>
+#include "utilities.h"
 
 using namespace std;
 
@@ -48,19 +49,39 @@ class Line {
 		this->y2 += dy;
 	}
 
-	void draw(char* fbp, char color[3]){
+	void draw(char* fbp, int32 color){
 		draw(fbp, this->x2, this->y2, color);
 	}
 
-	void draw(char* fbp, int x2, int y2, char color[3]) {
-		//use bresenham algorithm here
+	void draw(char* fbp, int x2, int y2, int32 color) {
+		int dx, dy, p, x, y;
+ 
+		dx = x2 - x1;
+		dy = y2 - y1;
+	
+		x = x1;
+		y = y1;
+	
+		p = 2*dy - dx;
+	
+		while(x < x2) {
+			if(p >= 0) {
+				putpixel(fbp, x, y, color);
+				y = y + 1;
+				p = p + 2*dy - 2*dx;
+			} else {
+				putpixel(fbp, x, y, color);
+				p = p + 2*dy;
+			}
+			x = x + 1;
+		}
 	} 
 
 	void animateDrawing(char* fbp, int dt, int color_num, char (*colors)[3]){
 		if (animationTime == 0)
 			return;
 		float phase = (float) timePassed / animationTime; //calculate phase
-		i = 0;
+		int i = 0;
 		while (i < color_num) { // search for the appropriate color for this phase
 			float colorphase = ((float) i + 1)/color_num;
 			if (phase > colorphase)
@@ -71,7 +92,8 @@ class Line {
 		int tempx2 = x1 + (int)((x2-x1) * phase);
 		int tempy2 = y1 + (int)((y2-y1) * phase);
 
-		this->draw(fbp, tempx2, tempy2, colors[i]);
+		// this->draw(fbp, tempx2, tempy2, colors[i]);
+		this->draw(fbp, tempx2, tempy2, RED);
 		timePassed += dt;
 	}
 

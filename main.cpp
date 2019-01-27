@@ -46,5 +46,12 @@ int main(int argc, char **args) {
     }
     printf("The framebuffer device was mapped to memory successfully.\n");
 
+    // Initialize screen information
+    initScreenInfo(vinfo, finfo);
+
+    // Draw diagonal line
+    Line line(0, 0, vinfo.xres, vinfo.yres);
+    line.draw(fbp, GREEN);
+
 	return 0;
 }

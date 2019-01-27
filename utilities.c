@@ -1,5 +1,16 @@
 #include "utilities.h"
 
+/**
+ * Defining global variables of screen information
+ */ 
+int32 X_RES = 0;
+int32 Y_RES = 0;
+int32 X_OFFSET = 0;
+int32 Y_OFFSET = 0;
+int32 BITS_PER_PIXEL = 0;
+int32 X_LENGTH = 0;
+int32 Y_LENGTH = 0;
+
 struct pixel** allocate_logo(int height, int width) {
     int i;
 
@@ -112,4 +123,25 @@ args convert_to_args(int x1, int y1, int x2, int y2, struct pixel** logo, int w,
     temp.delay = delay;
 
     return temp;
+}
+
+void initScreenInfo(fb_vinfo vinfo, fb_finfo finfo) {
+    X_RES = vinfo.xres;
+    Y_RES = vinfo.yres;
+    X_OFFSET = vinfo.xoffset;
+    Y_OFFSET = vinfo.yoffset;
+    X_LENGTH = vinfo.bits_per_pixel/8;
+    Y_LENGTH = finfo.line_length;
+}
+
+void putpixel(char* fbp, int x, int y, int32 color) {
+    if (y >= 0 && y < Y_RES - 6) {
+        if (x >= 0 && x < X_RES - 6) {
+            long int location = (x + X_OFFSET) * X_LENGTH + (y + Y_OFFSET) * Y_LENGTH;
+            *(fbp + location) = (color & BLUE);
+            *(fbp + location + 1) = (color & GREEN) >> 8;
+            *(fbp + location + 2) = (color & RED) >> 16;
+            *(fbp + location + 3) = 0;
+        }
+     }
 }

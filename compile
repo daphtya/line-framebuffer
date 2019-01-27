@@ -1,0 +1,1 @@
+g++ DrawnObject.cpp Line.cpp main.cpp utilities.c utilities.h -o main -fpermissive

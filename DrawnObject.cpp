@@ -51,7 +51,7 @@ public:
 
 	void draw(char* fbp) {
 		for (int i = 0; i < line_number; i++){
-			lines[i].draw(fbp);
+			lines[i].draw(fbp, RED);
 		}
 	}
 };
