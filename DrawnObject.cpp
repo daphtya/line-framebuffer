@@ -2,6 +2,9 @@
 #include <iostream>
 #include "Line.cpp"
 
+#ifndef DOBJECT
+#define DOBJECT
+
 using namespace std;
 
 class DrawnObject {
@@ -11,6 +14,8 @@ private:
 	int line_number;
 
 public:
+	DrawnObject() : DrawnObject(10) { }
+
 	DrawnObject(int max_line_number) {
 		this->max_line_number = max_line_number;
 		this->line_number = 0;
@@ -55,3 +60,6 @@ public:
 		}
 	}
 };
+
+
+#endif

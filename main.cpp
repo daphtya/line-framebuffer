@@ -1,6 +1,7 @@
 
 #include "utilities.h"
 #include "DrawnObject.cpp"
+#include "Pesawat.cpp"
 
 using namespace std;
 
@@ -50,8 +51,32 @@ int main(int argc, char **args) {
     initScreenInfo(vinfo, finfo);
 
     // Draw diagonal line
-    Line line(0, 0, vinfo.xres, vinfo.yres);
-    line.draw(fbp, GREEN);
+    clear_screen(fbp, screensize);
+    Line line(0, 0, vinfo.xres/2, vinfo.yres);
+    Line line2(0,0, vinfo.xres, vinfo.yres/2);
+    Line line3(0, vinfo.yres, vinfo.xres/2, 0);
+    Line line4(0, vinfo.yres, vinfo.xres, vinfo.yres/2);
+    Line line5(0, vinfo.yres/2, vinfo.xres, vinfo.yres/2);
+    Pesawat p1 (vinfo.xres/2, vinfo.yres/2, true);
+
+    line.draw(fbp, BLUE | RED); //purple
+    line2.draw(fbp, RED | GREEN); //yellow
+    line3.draw(fbp, BLUE);
+    line4.draw(fbp, BLUE | GREEN);
+    line5.draw(fbp, GREEN);
+
+    //draw loop
+
+    while (true) {
+        // update position of all objects
+        p1.update();
+        // draw objects
+        p1.draw(fbp);
+        //delay before next frame
+        usleep(1000);
+        clear_screen(fbp, screensize);
+    }
+
 
 	return 0;
 }
