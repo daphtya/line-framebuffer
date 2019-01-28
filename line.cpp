@@ -67,25 +67,32 @@ class Line {
 	}
 
 	void draw(FrameBuffer* framebuffer) {
-		std::cout << "draw line from " << *(this->from) << " to " << *(this->to) << std::endl;
-		int dx = this->to->getX() - this->from->getX(); int signed_dx = dx / abs(dx);
-		int dy = this->to->getY() - this->from->getY(); int signed_dy = dy / abs(dy);
+		int dx = this->to->getX() - this->from->getX();
+		int dy = this->to->getY() - this->from->getY();
 
-		int x, y, D;
+		int shortStart, shortFinish, longStart, longFinish, longSigned, shortSigned, D;
+		if (abs(dx) < abs(dy)) {
+			shortStart = this->from->getX(); shortFinish = this->to->getX(); shortSigned = (dx == 0 ? 0 : dx / abs(dx));
+			longStart = this->from->getY();  longFinish = this->to->getY();  longSigned = dy / abs(dy);
+			D = 2 * abs(dx) - abs(dy);
+		} else {
+			shortStart = this->from->getY(); shortFinish = this->to->getY(); shortSigned = (dy == 0 ? 0 : dy / abs(dy));
+			longStart = this->from->getX();  longFinish = this->to->getX();  longSigned = dx / abs(dx);
+			D = 2 * abs(dy) - abs(dx);
+		}
 
-		x = this->from->getX();
-		y = this->from->getY();
-		D = 2 * dx - dy;
+		int shortIt = shortStart;
 
-		for (; y <= this->to->getY(); y += signed_dy) {
-			Coordinate* coordinate = new Coordinate(x, y);
-			framebuffer->lazyDraw(coordinate, CWHITE);
+		for (int longIt = longStart; longIt != longFinish; longIt += longSigned) {
+			Coordinate* coordinate;
+			coordinate = (abs(dx) < abs(dy) ? new Coordinate(shortIt, longIt) : new Coordinate(longIt, shortIt));
+			framebuffer->lazyDraw(coordinate, this->from_color);
 			delete coordinate;
 			if (D > 0) {
-				x += signed_dx;
-				D -= 2 * dy;
+				shortIt += shortSigned;
+				D -= 2 * (abs(dx) < abs(dy) ? abs(dy) : abs(dx));
 			}
-			D += 2 * dx;
+			D += 2 * (abs(dx) < abs(dy) ? abs(dx) : abs(dy));
 		}
 	}
 };

@@ -1,4 +1,5 @@
 #include "framebuffer.cpp"
+#include <vector>
 #include "line.cpp"
 
 using namespace std;
@@ -20,17 +21,28 @@ int main(int argc, char **args) {
     int xres = framebuffer->getXRes();
     int yres = framebuffer->getYRes();
 
-    Line* line1 = new Line(0, 0, xres / 2, yres);
-    Line* line2 = new Line(0, 0, xres, yres / 2);
-    Line* line3 = new Line(0, yres, xres / 2, 0);
-    Line* line4 = new Line(0, yres, xres, yres / 2);
-    Line* line5 = new Line(0, yres / 2, xres, yres / 2);
+    std::vector<Line*> lines;
 
-    line1->draw(framebuffer);
-    line2->draw(framebuffer);
-    line3->draw(framebuffer);
-    // line4->draw(framebuffer);
-    // line5->draw(framebuffer);
+    lines.push_back(new Line(xres / 2, yres / 2, 4 * xres / 4, 2 * yres / 4, CBLUE, CBLUE));
+    lines.push_back(new Line(xres / 2, yres / 2, 4 * xres / 4, 1 * yres / 4, CRED, CRED));
+    lines.push_back(new Line(xres / 2, yres / 2, 4 * xres / 4, 0 * yres / 4, CGREEN, CGREEN));
+    lines.push_back(new Line(xres / 2, yres / 2, 3 * xres / 4, 0 * yres / 4, CBLUE, CBLUE));
+    lines.push_back(new Line(xres / 2, yres / 2, 2 * xres / 4, 0 * yres / 4, CRED, CRED));
+    lines.push_back(new Line(xres / 2, yres / 2, 1 * xres / 4, 0 * yres / 4, CGREEN, CGREEN));
+    lines.push_back(new Line(xres / 2, yres / 2, 0 * xres / 4, 0 * yres / 4, CBLUE, CBLUE));
+    lines.push_back(new Line(xres / 2, yres / 2, 0 * xres / 4, 1 * yres / 4, CRED, CRED));
+    lines.push_back(new Line(xres / 2, yres / 2, 0 * xres / 4, 2 * yres / 4, CGREEN, CGREEN));
+    lines.push_back(new Line(xres / 2, yres / 2, 0 * xres / 4, 3 * yres / 4, CBLUE, CBLUE));
+    lines.push_back(new Line(xres / 2, yres / 2, 0 * xres / 4, 4 * yres / 4, CRED, CRED));
+    lines.push_back(new Line(xres / 2, yres / 2, 1 * xres / 4, 4 * yres / 4, CGREEN, CGREEN));
+    lines.push_back(new Line(xres / 2, yres / 2, 2 * xres / 4, 4 * yres / 4, CBLUE, CBLUE));
+    lines.push_back(new Line(xres / 2, yres / 2, 3 * xres / 4, 4 * yres / 4, CRED, CRED));
+    lines.push_back(new Line(xres / 2, yres / 2, 4 * xres / 4, 4 * yres / 4, CGREEN, CGREEN));
+    lines.push_back(new Line(xres / 2, yres / 2, 4 * xres / 4, 3 * yres / 4, CBLUE, CBLUE));
+
+    for (Line* line : lines) {
+        line->draw(framebuffer);
+    }
 
     framebuffer->draw();
     getchar();

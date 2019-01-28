@@ -9,6 +9,6 @@ typedef unsigned int color;
 #define CGREEN 0x0000FF00
 #define CYELLOW 0x00FFFF00
 #define CCYAN 0x0000FFFF
-#define CVIOLET 0x00FF00FF
+#define CMAGENTA 0x00FF00FF
 
 #endif

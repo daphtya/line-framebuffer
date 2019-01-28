@@ -75,8 +75,8 @@ public:
     void lazyDraw(Coordinate* coordinate, color c) {
         int x = coordinate->getX();
         int y = coordinate->getY();
-        if (y >= 0 && y < this->getYRes() - 6) {
-            if (x >= 0 && x < this->getXRes() - 6) {
+        if (y >= 0 && y < this->getYRes()) {
+            if (x >= 0 && x < this->getXRes()) {
                 this->lazy[x][y] = c;
             }
         }
@@ -84,8 +84,8 @@ public:
 
     void draw() {
         memset(this->fbp, 0, this->screensize);
-        for (int y = 0; y < this->getYRes() - 10; y++) {
-            for (int x = 0; x < this->getXRes() - 10; x++) {
+        for (int y = 0; y < this->getYRes() - 6; y++) {
+            for (int x = 0; x < this->getXRes() - 6; x++) {
                 long int location = (x + this->getXOffset()) + (y + this->getYOffset()) * this->getYLength() / 4;
                 this->fbp[location] = this->lazy[x][y];
             }
