@@ -1,10 +1,10 @@
-#include "color.cpp"
-#include "coordinate.cpp"
-#include "framebuffer.cpp"
-
-
 #ifndef LINE
 #define LINE
+
+#include "color.hpp"
+#include "coordinate.hpp"
+#include "framebuffer.hpp"
+
 
 using namespace std;
 
@@ -86,7 +86,8 @@ class Line {
 		for (int longIt = longStart; longIt != longFinish; longIt += longSigned) {
 			Coordinate* coordinate;
 			coordinate = (abs(dx) < abs(dy) ? new Coordinate(shortIt, longIt) : new Coordinate(longIt, shortIt));
-			framebuffer->lazyDraw(coordinate, this->from_color);
+			color c = colorMid(this->from_color, this->to_color, 1.0 * abs(longIt - longStart) / abs(longFinish - longStart));
+			framebuffer->lazyDraw(coordinate, c);
 			delete coordinate;
 			if (D > 0) {
 				shortIt += shortSigned;

@@ -12,9 +12,9 @@
 #include <math.h>
 #include <pthread.h>
 
-#include "color.cpp"
-#include "exception.cpp"
-#include "coordinate.cpp"
+#include "color.hpp"
+#include "exception.hpp"
+#include "coordinate.hpp"
 
 class FrameBuffer {
 private:
