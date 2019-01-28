@@ -14,7 +14,7 @@
 #include "utils.hpp"
 
 class Polygon : public Drawable {
-private:
+protected:
     std::vector<Coordinate*>* points;
     color c;
     double scaleFactor;
@@ -58,10 +58,15 @@ public:
         }
     }
 
-    void moveTo(int x, int y) {
+    void moveTo(int x, int y, int maxVelocity = -1) {
         Coordinate* center = this->getCenter();
         int dx = x - center->getX();
         int dy = y - center->getY();
+        if (maxVelocity >= 0 && (dx != 0 || dy != 0)) {
+            double factor = maxVelocity * 1.0 / sqrt(dx * dx + dy * dy);
+            dx *= factor;
+            dy *= factor;
+        }
         delete center;
         this->move(dx, dy);
     }
@@ -76,6 +81,10 @@ public:
 
     double getRotation() const {
         return this->rotation;
+    }
+
+    virtual bool isAnimated() const {
+        return false;
     }
 
     std::pair<Coordinate*, Coordinate*>* getBoundingBox() {
