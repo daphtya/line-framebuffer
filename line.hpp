@@ -3,12 +3,13 @@
 
 #include "color.hpp"
 #include "coordinate.hpp"
+#include "drawable.hpp"
 #include "framebuffer.hpp"
 
 
 using namespace std;
 
-class Line {
+class Line : Drawable {
 	public:
 		Coordinate* from;
 		Coordinate* to;

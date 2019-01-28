@@ -1,9 +1,40 @@
+#include <curses.h>
+#include <thread>
+#include <unistd.h>
 #include <vector>
 
+#include "drawable.hpp"
 #include "framebuffer.hpp"
 #include "line.hpp"
 
-using namespace std;
+bool run;
+
+void readInput(FrameBuffer* framebuffer, vector<Drawable*>* objects) {
+    initscr();
+    timeout(-1);
+    while (run) {
+        char c = getch();
+        if (c == 'q') {
+            run = false;
+        } else if (c == 'a') {
+            Drawable* newObject = (Drawable*) new Line(20, 20, 100, 100);
+            newObject->draw(framebuffer);
+            objects->push_back(newObject);
+        } else if (c == 's') {
+            Drawable* newObject = (Drawable*) new Line(210, 210, 110, 110);
+            newObject->draw(framebuffer);
+            objects->push_back(newObject);
+        }
+    }
+    endwin();
+}
+
+void draw(FrameBuffer* framebuffer) {
+    while (run) {
+        framebuffer->draw();
+        usleep(10000);
+    }
+}
 
 int main(int argc, char **args) {
     char* fbp = 0;
@@ -19,34 +50,14 @@ int main(int argc, char **args) {
         return 1;
     }
 
-    int xres = framebuffer->getXRes();
-    int yres = framebuffer->getYRes();
+    run = true;
+    std::vector<Drawable*>* objects = new std::vector<Drawable*>;
 
-    std::vector<Line*> lines;
+    std::thread* t0 = new std::thread(readInput, framebuffer, objects);
+    std::thread* t1 = new std::thread(draw, framebuffer);
 
-    lines.push_back(new Line(xres / 2, yres / 2, 4 * xres / 4, 2 * yres / 4, CBLUE, CRED));
-    lines.push_back(new Line(xres / 2, yres / 2, 4 * xres / 4, 1 * yres / 4, CRED, CMAGENTA));
-    lines.push_back(new Line(xres / 2, yres / 2, 4 * xres / 4, 0 * yres / 4, CGREEN, CYELLOW));
-    lines.push_back(new Line(xres / 2, yres / 2, 3 * xres / 4, 0 * yres / 4, CBLUE, CGREEN));
-    lines.push_back(new Line(xres / 2, yres / 2, 2 * xres / 4, 0 * yres / 4, CRED, CCYAN));
-    lines.push_back(new Line(xres / 2, yres / 2, 1 * xres / 4, 0 * yres / 4, CGREEN, CWHITE));
-    lines.push_back(new Line(xres / 2, yres / 2, 0 * xres / 4, 0 * yres / 4, CBLUE, CBLACK));
-    lines.push_back(new Line(xres / 2, yres / 2, 0 * xres / 4, 1 * yres / 4, CRED, CGREEN));
-    lines.push_back(new Line(xres / 2, yres / 2, 0 * xres / 4, 2 * yres / 4, CGREEN, CMAGENTA));
-    lines.push_back(new Line(xres / 2, yres / 2, 0 * xres / 4, 3 * yres / 4, CBLUE, CYELLOW));
-    lines.push_back(new Line(xres / 2, yres / 2, 0 * xres / 4, 4 * yres / 4, CRED, CBLACK));
-    lines.push_back(new Line(xres / 2, yres / 2, 1 * xres / 4, 4 * yres / 4, CGREEN, CWHITE));
-    lines.push_back(new Line(xres / 2, yres / 2, 2 * xres / 4, 4 * yres / 4, CBLUE, CCYAN));
-    lines.push_back(new Line(xres / 2, yres / 2, 3 * xres / 4, 4 * yres / 4, CRED, CGREEN));
-    lines.push_back(new Line(xres / 2, yres / 2, 4 * xres / 4, 4 * yres / 4, CGREEN, CWHITE));
-    lines.push_back(new Line(xres / 2, yres / 2, 4 * xres / 4, 3 * yres / 4, CBLUE, CRED));
-
-    for (Line* line : lines) {
-        line->draw(framebuffer);
-    }
-
-    framebuffer->draw();
-    getchar();
+    t0->join();
+    t1->join();
 
 	return 0;
 }

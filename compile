@@ -1,1 +1,1 @@
-g++ -o main *.cpp -fpermissive -std=c++11
+g++ -o main *.cpp -fpermissive -std=c++11 -pthread -lncurses
