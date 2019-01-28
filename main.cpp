@@ -1,7 +1,7 @@
-
 #include "utilities.h"
 #include "DrawnObject.cpp"
 #include "Pesawat.cpp"
+#include "Missile.cpp"
 
 using namespace std;
 
@@ -52,32 +52,35 @@ int main(int argc, char **args) {
 
     // Draw diagonal line
     clear_screen(fbp, screensize);
-    Line line(0, 0, vinfo.xres/2, vinfo.yres);
-    Line line2(0,0, vinfo.xres, vinfo.yres/2);
-    Line line3(0, vinfo.yres, vinfo.xres/2, 0);
-    Line line4(0, vinfo.yres, vinfo.xres, vinfo.yres/2);
-    Line line5(0, vinfo.yres/2, vinfo.xres, vinfo.yres/2);
-    Pesawat p1 (vinfo.xres/2, vinfo.yres/2, true);
+    // Line line(0, 0, vinfo.xres/2, vinfo.yres);
+    // Line line2(0,0, vinfo.xres, vinfo.yres/2);
+    // Line line3(0, vinfo.yres, vinfo.xres/2, 0);
+    // Line line4(0, vinfo.yres, vinfo.xres, vinfo.yres/2);
+    // Line line5(0, vinfo.yres/2, vinfo.xres, vinfo.yres/2);
+    // Pesawat p1 (vinfo.xres/2, vinfo.yres/2, true);
 
-    int32 colors[] = {RED, GREEN, BLUE};
+    // int32 colors[] = {RED, GREEN, BLUE};
 
-    line.draw(3, colors); //purple
-    line2.draw(RED | GREEN); //yellow
-    line3.draw(BLUE);
-    line4.draw(BLUE | GREEN);
-    line5.draw(GREEN);
+    // line.draw(3, colors); //purple
+    // line2.draw(RED | GREEN); //yellow
+    // line3.draw(BLUE);
+    // line4.draw(BLUE | GREEN);
+    // line5.draw(GREEN);
 
     //draw loop
 
-    // while (true) {
-    //     // update position of all objects
-    //     p1.update();
-    //     // draw objects
-    //     p1.draw(fbp);
-    //     //delay before next frame
-    //     usleep(1000);
-    //     clear_screen(fbp, screensize);
-    // }
+    Missile missile(0, 0, vinfo.xres, vinfo.yres, 500);
+
+    while (true) {
+        missile.update();
+        // update position of all objects
+        // p1.update();
+        // draw objects
+        // p1.draw(fbp);
+        //delay before next frame
+        usleep(1000);
+        clear_screen(fbp, screensize);
+    }
 
 
 	return 0;
