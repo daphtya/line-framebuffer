@@ -17,11 +17,11 @@ void readInput(FrameBuffer* framebuffer, vector<Drawable*>* objects) {
         if (c == 'q') {
             run = false;
         } else if (c == 'a') {
-            Drawable* newObject = (Drawable*) new Line(20, 20, 100, 100);
+            Drawable* newObject = (Drawable*) new Line(0, 0, 1366, 768);
             newObject->draw(framebuffer);
             objects->push_back(newObject);
         } else if (c == 's') {
-            Drawable* newObject = (Drawable*) new Line(210, 210, 110, 110);
+            Drawable* newObject = (Drawable*) new Line(1366, 0, 0, 768);
             newObject->draw(framebuffer);
             objects->push_back(newObject);
         }
@@ -49,6 +49,8 @@ int main(int argc, char **args) {
         e.print();
         return 1;
     }
+
+    framebuffer->clearScreen();
 
     run = true;
     std::vector<Drawable*>* objects = new std::vector<Drawable*>;

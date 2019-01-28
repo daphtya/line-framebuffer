@@ -19,10 +19,11 @@
 class FrameBuffer {
 private:
     color* fbp;
-    color** lazy;
+    color* lazy;
     struct fb_var_screeninfo vinfo;
     struct fb_fix_screeninfo finfo;
     long int screensize;
+    long int fbpSize;
 
 public:
     FrameBuffer() {
@@ -50,17 +51,11 @@ public:
         std::cout << "Color " << this->vinfo.bits_per_pixel << "bpp" << std::endl;
         std::cout << "Screensize " << this->screensize << std::endl;
 
-        this->fbp = (color *) mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
+        this->fbp = (color *) mmap(0, this->screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
         if (this->fbp == (color*) -1) {
             throw new Exception("Error: failed to map framebuffer device to memory");
         }
-        this->lazy = (color**) malloc(this->getXRes() * sizeof(color*));
-        for (int i=0; i<this->getXRes(); i++) {
-            this->lazy[i] = (color*) malloc(this->getYRes() * sizeof(color));
-            for (int j=0; j<this->getYRes(); j++) {
-                this->lazy[i][j] = 0;
-            }
-        }
+        this->lazy = (color*) malloc(this->screensize);
 
         std::cout << "The framebuffer device was mapped to memory successfully." << std::endl;
     }
@@ -77,19 +72,18 @@ public:
         int y = coordinate->getY();
         if (y >= 0 && y < this->getYRes()) {
             if (x >= 0 && x < this->getXRes()) {
-                this->lazy[x][y] = c;
+                long int location = (x + this->getXOffset()) + (y + this->getYOffset()) * this->getYLength() / 4;
+                this->lazy[location] = c;
             }
         }
     }
 
-    void draw() {
+    void clearScreen() {
         memset(this->fbp, 0, this->screensize);
-        for (int y = 0; y < this->getYRes() - 6; y++) {
-            for (int x = 0; x < this->getXRes() - 6; x++) {
-                long int location = (x + this->getXOffset()) + (y + this->getYOffset()) * this->getYLength() / 4;
-                this->fbp[location] = this->lazy[x][y];
-            }
-        }
+    }
+
+    void draw() {
+        memcpy(this->fbp, this->lazy, this->screensize);
     }
 };
 
