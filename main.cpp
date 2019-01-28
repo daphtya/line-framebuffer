@@ -8,9 +8,11 @@
 #include "line.hpp"
 #include "polygon.hpp"
 
-#define COMMAND_QUIT 'q'
-#define COMMAND_ROTATE_RIGHT 'm'
-#define COMMAND_ROTATE_LEFT 'n'
+#define COMMAND_QUIT ' '
+#define COMMAND_ROTATE_LEFT 'q'
+#define COMMAND_ROTATE_RIGHT 'e'
+#define COMMAND_MOVE_LEFT 'a'
+#define COMMAND_MOVE_RIGHT 'd'
 
 void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) {
     initscr();
@@ -19,12 +21,22 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
         char c = getch();
         if (c == COMMAND_QUIT) {
             *run = false;
-        } else if (c == COMMAND_ROTATE_RIGHT) {
-            Polygon* pesawat = (Polygon*) objects->at(0);
-            pesawat->rotate(0.2);
         } else if (c == COMMAND_ROTATE_LEFT) {
             Polygon* pesawat = (Polygon*) objects->at(0);
-            pesawat->rotate(-0.2);
+            if (pesawat->getRotation() > -1.2) {
+                pesawat->rotate(-0.2);
+            }
+        } else if (c == COMMAND_ROTATE_RIGHT) {
+            Polygon* pesawat = (Polygon*) objects->at(0);
+            if (pesawat->getRotation() < 1.2) {
+                pesawat->rotate(0.2);
+            }
+        } else if (c == COMMAND_MOVE_LEFT) {
+            Polygon* pesawat = (Polygon*) objects->at(0);
+            pesawat->move(-3, 0);
+        } else if (c == COMMAND_MOVE_RIGHT) {
+            Polygon* pesawat = (Polygon*) objects->at(0);
+            pesawat->move(3, 0);
         }
     }
     endwin();

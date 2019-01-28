@@ -74,6 +74,10 @@ public:
         this->rotation += rotation;
     }
 
+    double getRotation() const {
+        return this->rotation;
+    }
+
     std::pair<Coordinate*, Coordinate*>* getBoundingBox() {
         int minX = this->points->at(0)->getX(); int maxX = minX;
         int minY = this->points->at(0)->getY(); int maxY = minY;
