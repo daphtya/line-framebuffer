@@ -28,12 +28,12 @@ public:
 		obj.addLine(pline3);
 
 
-		Line obj_lines[] = {pline1, pline2, pline3};
+		//Line obj_lines[] = {pline1, pline2, pline3};
 		this->object = obj;
 	}
 
-	void draw() {
-		this->object.draw();
+	void draw(int32 color) {
+		this->object.draw(color);
 	}
 
 	void update() {
@@ -41,12 +41,26 @@ public:
 		this->object.moveObject(dx, 0);
 	}
 
-	int* getCenter() {
-		return this->object.getCenter();
+	int* getCenter(int *x, int *y) {
+		this->object.getCenter(x,y);
 	}
 
 	void swapDirection(){
 		this->facing_left = this->facing_left ? false : true;
+		int tail_disp = facing_left ? 30 : -30;
+		int x, y;
+		getCenter(&x, &y);
+
+		DrawnObject obj(3);
+		Line pline1 (x,y,x+tail_disp, y+10);
+		Line pline2 (x,y,x+tail_disp, y-10);
+		Line pline3 (x+tail_disp, y+10, x+tail_disp, y-10);
+		obj.addLine(pline1);
+		obj.addLine(pline2);
+		obj.addLine(pline3);
+
+		//Line obj_lines[] = {pline1, pline2, pline3};
+		this->object = obj;
 	}
 };
 

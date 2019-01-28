@@ -88,5 +88,6 @@ void initScreenInfo(char* fbp, fb_vinfo vinfo, fb_finfo finfo);
  *                Example for red: 11111111 00000000 00000000 or as integer 16711680
  */ 
 void putpixel(int x, int y, int32 color);
+int32 makecolor(char red, char green, char blue);
 
 #endif

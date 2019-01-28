@@ -46,8 +46,19 @@ int main(int argc, char **args) {
     }
     printf("The framebuffer device was mapped to memory successfully.\n");
 
+    /**
+     * Defining Virtual Framebuffer
+     * 
+     * Virtual framebuffer is created to avoid object flickering in the screen.
+     * 
+     * Instead of drawing any object directly to the framebuffer device,
+     * any object will be drawn in the virtual framebuffer.
+     * The frame loop will copy content of virtual framebuffer to the framebuffer device later.
+     */  
+    char *bbp = new char[screensize];  
+
     /* Screen Initialization */
-    initScreenInfo(fbp, vinfo, finfo);
+    initScreenInfo(bbp, vinfo, finfo);
     clear_screen(fbp, screensize);
 
     /* Object Initialization */    
@@ -69,28 +80,28 @@ int main(int argc, char **args) {
     // Missile
     Missile missile(0, 0, vinfo.xres, vinfo.yres, 500);
 
-    /* Frame Loop */
-    int counter = 0;
+    int counter = 150;
 
-    while (true) {
-        // update position of all objects
-        counter++;
-
-        missile.update();
-        p1.update();
-        obj.moveObject(1,0);
-
+     while (true) {
         // draw objects
-        p1.draw();
-        obj.draw();
+        missile.update();
+        p1.draw(RED);
+        obj.draw(GREEN);
         if (counter == 300) {
             counter = 0;
             p1.swapDirection();
         }
-
+        // update position of all objects
         //delay before next frame
+        memcpy(fbp, bbp, screensize);
         usleep(1000);
-        clear_screen(fbp, screensize);
+        clear_screen(bbp, screensize);
+
+        counter ++;
+        p1.update();
+        obj.moveObject(1,0);
+
+        //clear_screen(fbp, screensize);
      }
 
 
