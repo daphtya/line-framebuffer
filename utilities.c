@@ -151,3 +151,8 @@ void putpixel(int x, int y, int32 color) {
         }
      }
 }
+
+int32 makecolor(char red, char green, char blue) {
+    int32 ans = 0;
+    return ans + red << 16 + green << 8 + blue;
+}

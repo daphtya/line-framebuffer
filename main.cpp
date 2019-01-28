@@ -47,8 +47,11 @@ int main(int argc, char **args) {
     }
     printf("The framebuffer device was mapped to memory successfully.\n");
 
+    
+    char *bbp = new char[screensize];  
     // Initialize screen information
-    initScreenInfo(fbp, vinfo, finfo);
+    
+    initScreenInfo(bbp, vinfo, finfo);
 
     // Draw diagonal line
     clear_screen(fbp, screensize);
@@ -78,23 +81,32 @@ int main(int argc, char **args) {
         obj.addLine(pline3);
     //draw loop
 
-    int counter = 0;
+    int counter = 150;
 
      while (true) {
-        // update position of all objects
-        counter ++;
-        p1.update();
-        obj.moveObject(1,0);
         // draw objects
-        p1.draw();
-        obj.draw();
+        p1.draw(RED);
+        obj.draw(GREEN);
+        line.draw(3, colors); //purple
+        line2.draw(RED | GREEN); //yellow
+        line3.draw(BLUE);
+        line4.draw(BLUE | GREEN);
         if (counter == 300) {
             counter = 0;
             p1.swapDirection();
         }
+        // update position of all objects
         //delay before next frame
+        memcpy(fbp, bbp, screensize);
         usleep(1000);
-         clear_screen(fbp, screensize);
+
+        clear_screen(bbp, screensize);
+
+        counter ++;
+        p1.update();
+        obj.moveObject(1,0);
+
+        //clear_screen(fbp, screensize);
      }
 
 

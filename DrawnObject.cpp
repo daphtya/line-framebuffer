@@ -42,7 +42,7 @@ public:
 		}
 	}
 
-	int* getCenter() {
+	void getCenter(int *x, int *y) {
 		int sumx = 0;
 		int sumy = 0;
 		int point_num = 2*line_number;
@@ -50,13 +50,13 @@ public:
 			sumx += lines[i].x1 + lines[i].x2;
 			sumy += lines[i].y1 + lines[i].y2;
 		}
-		int center[] = {sumx/point_num, sumy/point_num};
-		return center;
+		*x = sumx/point_num;
+		*y = sumy/point_num;
 	}
 
-	void draw() {
+	void draw(int32 color) {
 		for (int i = 0; i < line_number; i++){
-			lines[i].draw(RED);
+			lines[i].draw(color);
 		}
 	}
 };
