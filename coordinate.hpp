@@ -1,7 +1,9 @@
 #ifndef COORDINATE
 #define COORDINATE
 
-#include <iostream>
+#include <cmath>
+
+#include "utils.hpp"
 
 class Coordinate {
 private:
@@ -30,6 +32,16 @@ public:
     friend std::ostream &operator<<(std::ostream &output, const Coordinate& coordinate) {
         output << "(" << coordinate.getX() << ", " << coordinate.getY() << ")";
         return output;
+    }
+
+    Coordinate* transform(double scaleFactor, double rotation, Coordinate* center) {
+        int cx = center->getX();
+        int cy = center->getY();
+        int x = (this->x - cx) * scaleFactor + cx;
+        int y = (this->y - cy) * scaleFactor + cy;
+        int newX = cos(rotation) * (x - cx) - sin(rotation) * (y - cy) + cx;
+        int newY = sin(rotation) * (x - cx) + cos(rotation) * (y - cy) + cy;
+        return new Coordinate(newX, newY);
     }
 };
 

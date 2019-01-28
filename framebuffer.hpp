@@ -79,10 +79,11 @@ public:
     }
 
     void clearScreen() {
-        memset(this->fbp, 0, this->screensize);
+        memset(this->lazy, 0, this->screensize);
     }
 
     void draw() {
+        memset(this->fbp, 0, this->screensize);
         memcpy(this->fbp, this->lazy, this->screensize);
     }
 };

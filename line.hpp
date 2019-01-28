@@ -6,10 +6,7 @@
 #include "drawable.hpp"
 #include "framebuffer.hpp"
 
-
-using namespace std;
-
-class Line : Drawable {
+class Line : public Drawable {
 	public:
 		Coordinate* from;
 		Coordinate* to;
