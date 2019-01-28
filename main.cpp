@@ -66,18 +66,36 @@ int main(int argc, char **args) {
     line3.draw(BLUE);
     line4.draw(BLUE | GREEN);
     line5.draw(GREEN);
-
+     x = vinfo.xres/2;
+     y = vinfo.yres/2;
+     int tail_disp = 30;
+    DrawnObject obj(3);
+        Line pline1 (x,y,x+tail_disp, y+10);
+        Line pline2 (x,y,x+tail_disp, y-10);
+        Line pline3 (x+tail_disp, y+10, x+tail_disp, y-10);
+        obj.addLine(pline1);
+        obj.addLine(pline2);
+        obj.addLine(pline3);
     //draw loop
 
-    // while (true) {
-    //     // update position of all objects
-    //     p1.update();
-    //     // draw objects
-    //     p1.draw(fbp);
-    //     //delay before next frame
-    //     usleep(1000);
-    //     clear_screen(fbp, screensize);
-    // }
+    int counter = 0;
+
+     while (true) {
+        // update position of all objects
+        counter ++;
+        p1.update();
+        obj.moveObject(1,0);
+        // draw objects
+        p1.draw();
+        obj.draw();
+        if (counter == 300) {
+            counter = 0;
+            p1.swapDirection();
+        }
+        //delay before next frame
+        usleep(1000);
+         clear_screen(fbp, screensize);
+     }
 
 
 	return 0;
