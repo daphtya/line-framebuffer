@@ -54,7 +54,7 @@ public:
 		return center;
 	}
 
-	void draw(char* fbp) {
+	void draw() {
 		for (int i = 0; i < line_number; i++){
 			lines[i].draw(RED);
 		}

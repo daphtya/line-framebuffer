@@ -12,7 +12,6 @@ int main(int argc, char **args) {
     long int screensize = 0;
     char* fbp = 0;
     int i, j;
-    int x = 0, y = 0;
 
     // Open the file for reading and writing
     fbfd = open("/dev/fb0", O_RDWR);
@@ -47,40 +46,52 @@ int main(int argc, char **args) {
     }
     printf("The framebuffer device was mapped to memory successfully.\n");
 
-    // Initialize screen information
+    /* Screen Initialization */
     initScreenInfo(fbp, vinfo, finfo);
-
-    // Draw diagonal line
     clear_screen(fbp, screensize);
-    // Line line(0, 0, vinfo.xres/2, vinfo.yres);
-    // Line line2(0,0, vinfo.xres, vinfo.yres/2);
-    // Line line3(0, vinfo.yres, vinfo.xres/2, 0);
-    // Line line4(0, vinfo.yres, vinfo.xres, vinfo.yres/2);
-    // Line line5(0, vinfo.yres/2, vinfo.xres, vinfo.yres/2);
-    // Pesawat p1 (vinfo.xres/2, vinfo.yres/2, true);
 
-    // int32 colors[] = {RED, GREEN, BLUE};
+    /* Object Initialization */    
+    // Plane
+    Pesawat p1 (vinfo.xres/2, vinfo.yres/2, true);
 
-    // line.draw(3, colors); //purple
-    // line2.draw(RED | GREEN); //yellow
-    // line3.draw(BLUE);
-    // line4.draw(BLUE | GREEN);
-    // line5.draw(GREEN);
+    // DrawnObject
+    int x = vinfo.xres/2;
+    int y = vinfo.yres/2;
+    int tail_disp = 30;
+    DrawnObject obj(3);
+    Line pline1 (x,y,x+tail_disp, y+10);
+    Line pline2 (x,y,x+tail_disp, y-10);
+    Line pline3 (x+tail_disp, y+10, x+tail_disp, y-10);
+    obj.addLine(pline1);
+    obj.addLine(pline2);
+    obj.addLine(pline3);
 
-    //draw loop
-
+    // Missile
     Missile missile(0, 0, vinfo.xres, vinfo.yres, 500);
 
+    /* Frame Loop */
+    int counter = 0;
+
     while (true) {
-        missile.update();
         // update position of all objects
-        // p1.update();
+        counter++;
+
+        missile.update();
+        p1.update();
+        obj.moveObject(1,0);
+
         // draw objects
-        // p1.draw(fbp);
+        p1.draw();
+        obj.draw();
+        if (counter == 300) {
+            counter = 0;
+            p1.swapDirection();
+        }
+
         //delay before next frame
         usleep(1000);
         clear_screen(fbp, screensize);
-    }
+     }
 
 
 	return 0;

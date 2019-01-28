@@ -15,24 +15,29 @@ private:
 public:
 	Pesawat(int x, int y) : Pesawat(x,y,true) { }
 
-	Pesawat(int x, int y, bool facing_left) {
+	Pesawat(int x, int y, bool facing_left) : object(3) {
 		this->facing_left = facing_left;
-		int tail_disp = 30 ? facing_left : -30;
+		int tail_disp = facing_left ? 30 : -30;
 
-		Line line1 (x,y,x+tail_disp, y+10);
-		Line line2 (x,y,x+tail_disp, y-10);
-		Line line3 (x+tail_disp, y+10, x+tail_disp, y-10);
+		DrawnObject obj(3);
+		Line pline1 (x,y,x+tail_disp, y+10);
+		Line pline2 (x,y,x+tail_disp, y-10);
+		Line pline3 (x+tail_disp, y+10, x+tail_disp, y-10);
+		obj.addLine(pline1);
+		obj.addLine(pline2);
+		obj.addLine(pline3);
 
-		Line obj_lines[] = {line1, line2, line3};
-		this->object = DrawnObject(obj_lines, 3, 3);
+
+		Line obj_lines[] = {pline1, pline2, pline3};
+		this->object = obj;
 	}
 
-	void draw(char *fbp) {
-		this->object.draw(fbp);
+	void draw() {
+		this->object.draw();
 	}
 
 	void update() {
-		int dx = PLANE_SPEED ? facing_left : -PLANE_SPEED;
+		int dx = this->facing_left ? -PLANE_SPEED : PLANE_SPEED;
 		this->object.moveObject(dx, 0);
 	}
 
@@ -41,7 +46,7 @@ public:
 	}
 
 	void swapDirection(){
-		this->facing_left = this->facing_left == false;
+		this->facing_left = this->facing_left ? false : true;
 	}
 };
 
