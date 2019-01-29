@@ -98,5 +98,10 @@ int main(int argc, char **args) {
     t0->join();
     t1->join();
 
+    delete player;
+    delete t0;
+    delete t1;
+    delete framebuffer;
+
 	return 0;
 }

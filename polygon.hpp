@@ -122,6 +122,8 @@ public:
             Coordinate* c2 = this->points->at((i + 1) % nLines)->transform(this->scaleFactor, this->rotation, this->anchor);
             Line* line = new Line(c1->getX(), c1->getY(), c2->getX(), c2->getY(), this->c, this->c);
             line->draw(framebuffer);
+            delete c1;
+            delete c2;
             delete line;
         }
     }
