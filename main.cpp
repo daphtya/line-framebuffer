@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <utility>
 #include <vector>
+#include <stdlib.h>
+#include <time.h>
 
 #include "animated.hpp"
 #include "drawable.hpp"
@@ -61,13 +63,19 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
 }
 
 void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) {
+    char type;
+
     while (*run) {
         framebuffer->clearScreen();
 
         for (int i = 0; i < objects->size(); i++) {
             objects->at(i)->draw(framebuffer);
             if (objects->at(i)->isAnimated()) {
-                objects->at(i)->animate(10);
+                type = ((Polygon*) objects->at(i))->getId();
+                if (type == BULLET_OBJ)
+                    objects->at(i)->animate(10);
+                else
+                    objects->at(i)->animate(5);
             }
         }
         framebuffer->draw();
@@ -75,8 +83,22 @@ void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) 
     }
 }
 
-int main(int argc, char **args) {
+void enemyUpdate(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, Coordinate* coor, bool* run) {
+    int threshold = 50;
+    int objX;
 
+    srand(time(0));
+    while (*run) {
+        //update animation
+        objX = ((Animated*) objects->at(1))->getCenter()->getX();
+        if (abs(objX - coor->getX()) < threshold) {
+            coor->setX(rand() % framebuffer->getXRes()*0.9 + framebuffer->getXRes()*0.05);
+            coor->setY(rand() % framebuffer->getYRes()*0.2 + framebuffer->getYRes()*0.05);
+        }
+    }
+}
+
+int main(int argc, char **args) {
     FrameBuffer* framebuffer;
     try {
         framebuffer = new FrameBuffer();
@@ -93,16 +115,19 @@ int main(int argc, char **args) {
     player->scale(4);
     objects->push_back(player);
 
-    Polygon* enemy = new Polygon("images/ufo.point", CMAGENTA, ENEMY_OBJ);
+    Coordinate* coor = new Coordinate(framebuffer->getXRes() / 2, framebuffer->getYRes()*0.1);
+    Animated* enemy = new Animated("images/ufo.point", CMAGENTA, ENEMY_OBJ, coor);
     enemy->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes()*0.1);
     enemy->scale(4);
     objects->push_back(enemy);
 
     std::thread* t0 = new std::thread(readInput, framebuffer, objects, &run);
     std::thread* t1 = new std::thread(draw, framebuffer, objects, &run);
+    std::thread* t2 = new std::thread(enemyUpdate, framebuffer, objects, coor, &run);
 
     t0->join();
     t1->join();
+    t2->join();
 
 	return 0;
 }
