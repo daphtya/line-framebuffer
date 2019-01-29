@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "utils.hpp"
+
 #include "animated.hpp"
 #include "drawable.hpp"
 #include "framebuffer.hpp"
@@ -45,11 +47,14 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
             int toX = top->getX() + 1000 * tan(player->getRotation());
             Coordinate* dest = new Coordinate(toX, top->getY() - 1000);
 
-            Animated* laser = new Animated("images/laser.point", CRED, BULLET_OBJ, dest);
-            laser->moveTo(top->getX(), top->getY());
+            Animated* laser = new Animated("images/laser.point", CRED, BULLET_OBJ, false, 5, 0.1, 1);
+            laser->addAnchorKeyframe(new Coordinate(top->getX(), top->getY()));
+            laser->addAnchorKeyframe(dest);
+            laser->addScaleKeyframe(1);
+            laser->addScaleKeyframe(10);
+            laser->addRotationKeyframe(player->getRotation());
+            // laser->addRotationKeyframe(720);
             laser->moveWithoutAnchor(0, -10);
-            laser->scale(4);
-            laser->rotate(player->getRotation());
 
             objects->push_back(laser);
 
@@ -70,13 +75,7 @@ void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) 
 
         for (int i = 0; i < objects->size(); i++) {
             objects->at(i)->draw(framebuffer);
-            if (objects->at(i)->isAnimated()) {
-                type = ((Polygon*) objects->at(i))->getId();
-                if (type == BULLET_OBJ)
-                    objects->at(i)->animate(10);
-                else
-                    objects->at(i)->animate(5);
-            }
+            objects->at(i)->animate();
         }
         framebuffer->draw();
         usleep(10000);
@@ -141,6 +140,11 @@ int main(int argc, char **args) {
     t0->join();
     t1->join();
     t2->join();
+
+    delete player;
+    delete t0;
+    delete t1;
+    delete framebuffer;
 
 	return 0;
 }

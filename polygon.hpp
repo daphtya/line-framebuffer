@@ -11,7 +11,6 @@
 #include "drawable.hpp"
 #include "framebuffer.hpp"
 #include "line.hpp"
-#include "utils.hpp"
 
 #define NULL_OBJ 0
 #define PLAYER_OBJ 1
@@ -88,20 +87,32 @@ public:
         this->scaleFactor *= scaleFactor;
     }
 
+    void scaleTo(double scaleFactor, double maxVelocity = 0) {
+        if (this->scaleFactor > scaleFactor) {
+            this->scaleFactor = std::max(this->scaleFactor - maxVelocity, scaleFactor);
+        } else {
+            this->scaleFactor = std::min(this->scaleFactor + maxVelocity, scaleFactor);
+        }
+    }
+
     void rotate(double rotation) {
         this->rotation += rotation;
     }
 
+    void rotateTo(double rotation, double maxVelocity = 0) {
+        if (this->rotation > rotation) {
+            this->rotation = std::max(this->rotation - maxVelocity, rotation);
+        } else {
+            this->rotation = std::min(this->rotation + maxVelocity, rotation);
+        }
+    }
+
+    double getScaleFactor() const {
+        return this->scaleFactor;
+    }
+
     double getRotation() const {
         return this->rotation;
-    }
-
-    char getId() const {
-        return this->id;
-    }
-
-    virtual bool isAnimated() const {
-        return false;
     }
 
     std::pair<Coordinate*, Coordinate*>* getBoundingBox() {
@@ -150,6 +161,8 @@ public:
             Coordinate* c2 = this->points->at((i + 1) % nLines)->transform(this->scaleFactor, this->rotation, this->anchor);
             Line* line = new Line(c1->getX(), c1->getY(), c2->getX(), c2->getY(), this->c, this->c);
             line->draw(framebuffer);
+            delete c1;
+            delete c2;
             delete line;
         }
     }
