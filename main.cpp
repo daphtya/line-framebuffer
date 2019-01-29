@@ -45,6 +45,7 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
 
             Animated* laser = new Animated("images/laser.point", CRED, dest);
             laser->moveTo(top->getX(), top->getY());
+            laser->moveWithoutAnchor(0, -10);
             laser->scale(4);
             laser->rotate(player->getRotation());
 

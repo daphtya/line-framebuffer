@@ -16,6 +16,7 @@
 class Polygon : public Drawable {
 protected:
     std::vector<Coordinate*>* points;
+    Coordinate* anchor;
     color c;
     double scaleFactor;
     double rotation; // rad
@@ -36,10 +37,7 @@ public:
         }
         f.close();
         this->c = c;
-    }
-
-    Polygon(color c) : Polygon() {
-        this->c = c;
+        this->anchor = this->getCenter();
     }
 
     ~Polygon() {
@@ -47,6 +45,13 @@ public:
             delete this->points->at(i);
         }
         delete this->points;
+        delete this->anchor;
+    }
+
+    void moveWithoutAnchor(int dx, int dy) {
+        for (int i = 0;  i < this->points->size(); i++) {
+            this->points->at(i)->move(dx, dy);
+        }
     }
 
     void addPoint(Coordinate* coordinate) {
@@ -57,18 +62,17 @@ public:
         for (int i = 0;  i < this->points->size(); i++) {
             this->points->at(i)->move(dx, dy);
         }
+        this->anchor->move(dx, dy);
     }
 
     void moveTo(int x, int y, int maxVelocity = -1) {
-        Coordinate* center = this->getCenter();
-        int dx = x - center->getX();
-        int dy = y - center->getY();
+        int dx = x - this->anchor->getX();
+        int dy = y - this->anchor->getY();
         if (maxVelocity >= 0 && (dx != 0 || dy != 0)) {
             double factor = maxVelocity * 1.0 / sqrt(dx * dx + dy * dy);
             dx *= factor;
             dy *= factor;
         }
-        delete center;
         this->move(dx, dy);
     }
 
@@ -112,16 +116,14 @@ public:
 
     void draw(FrameBuffer* framebuffer) {
         int nLines = this->points->size();
-        Coordinate* center = this->getCenter();
 
         for (int i = 0; i < this->points->size(); i++) {
-            Coordinate* c1 = this->points->at(i)->transform(this->scaleFactor, this->rotation, center);
-            Coordinate* c2 = this->points->at((i + 1) % nLines)->transform(this->scaleFactor, this->rotation, center);
+            Coordinate* c1 = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
+            Coordinate* c2 = this->points->at((i + 1) % nLines)->transform(this->scaleFactor, this->rotation, this->anchor);
             Line* line = new Line(c1->getX(), c1->getY(), c2->getX(), c2->getY(), this->c, this->c);
             line->draw(framebuffer);
             delete line;
         }
-        delete center;
     }
 };
 
