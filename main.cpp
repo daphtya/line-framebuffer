@@ -82,20 +82,14 @@ void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) 
     }
 }
 
-void enemyUpdate(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, Coordinate* coor) {
+void enemyUpdate(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) {
     int threshold = 50;
     Polygon* enemy = (Polygon*) objects->at(1);;
     Polygon* obj;
     bool hit = false;
 
     srand(time(0));
-    while (!hit) {
-        //update next dest when enemy has arrived to previous destination
-        if (abs(enemy->getCenter()->getX() - coor->getX()) < threshold) {
-            coor->setX(rand() % framebuffer->getXRes()*0.9 + framebuffer->getXRes()*0.05);
-            coor->setY(rand() % framebuffer->getYRes()*0.2 + framebuffer->getYRes()*0.05);
-        }
-
+    while (!hit && *run) {
         //collision detection
         for (int i = 0; i < objects->size(); i++) {
             obj = (Polygon*) objects->at(i);
@@ -127,21 +121,25 @@ int main(int argc, char **args) {
     player->scale(4);
     objects->push_back(player);
 
-    Coordinate* coor = new Coordinate(framebuffer->getXRes() / 2, framebuffer->getYRes()*0.1);
-    Animated* enemy = new Animated("images/ufo.point", CMAGENTA, ENEMY_OBJ, coor);
-    enemy->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes()*0.1);
+    Animated* enemy = new Animated("images/ufo.point", CMAGENTA, ENEMY_OBJ, true, 5, 0, 0);
+    for (int i = 0; i < 10; i++) {
+        int x = rand() % (framebuffer->getXRes() * 8 / 10) + (framebuffer->getXRes() / 10);
+        int y = rand() % (framebuffer->getXRes() * 3 / 10) + (framebuffer->getXRes() / 10);
+        enemy->addAnchorKeyframe(new Coordinate(x, y));
+    }
     enemy->scale(4);
     objects->push_back(enemy);
 
     std::thread* t0 = new std::thread(readInput, framebuffer, objects, &run);
     std::thread* t1 = new std::thread(draw, framebuffer, objects, &run);
-    std::thread* t2 = new std::thread(enemyUpdate, framebuffer, objects, coor);
+    std::thread* t2 = new std::thread(enemyUpdate, framebuffer, objects, &run);
 
     t0->join();
     t1->join();
     t2->join();
 
     delete player;
+    delete enemy;
     delete t0;
     delete t1;
     delete framebuffer;

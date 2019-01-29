@@ -75,8 +75,9 @@ public:
     void moveTo(int x, int y, int maxVelocity = -1) {
         int dx = x - this->anchor->getX();
         int dy = y - this->anchor->getY();
-        if (maxVelocity >= 0 && (dx != 0 || dy != 0)) {
-            double factor = maxVelocity * 1.0 / sqrt(dx * dx + dy * dy);
+        int dist2 = dx * dx + dy * dy;
+        if (maxVelocity >= 0 && dist2 > maxVelocity && (dx != 0 || dy != 0)) {
+            double factor = maxVelocity * 1.0 / sqrt(dist2);
             dx *= factor;
             dy *= factor;
         }
@@ -154,7 +155,7 @@ public:
         delete thisBoundingBox->first;
         delete thisBoundingBox->second;
         delete thisBoundingBox;
-        return overlapX && overlapY; 
+        return overlapX && overlapY;
     }
 
     void draw(FrameBuffer* framebuffer) {

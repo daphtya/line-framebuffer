@@ -81,8 +81,11 @@ public:
             int fromY = this->anchor->getY();
             Coordinate* dest = this->anchorKeyframes->at(this->nextAnchorKeyframes);
             this->moveTo(dest->getX(), dest->getY(), this->maxAnchorVelocity);
-            if (this->anchor->getX() == fromX && this->anchor->getY() == fromY) {
+            if (dest->getX() == fromX && dest->getY() == fromY) {
                 this->nextAnchorKeyframes++;
+                if (this->loop) {
+                    this->nextAnchorKeyframes %= this->anchorKeyframes->size();
+                }
             }
         }
 
@@ -92,6 +95,9 @@ public:
             this->scaleTo(to, this->maxScaleVelocity);
             if (from == this->getScaleFactor()) {
                 this->nextScaleKeyframes++;
+                if (this->loop) {
+                    this->nextScaleKeyframes %= this->scaleKeyframes->size();
+                }
             }
         }
 
@@ -101,6 +107,9 @@ public:
             this->rotateTo(to, this->maxRotationVelocity);
             if (from == this->getRotation()) {
                 this->nextRotationKeyframes++;
+                if (this->loop) {
+                    this->nextRotationKeyframes %= this->rotationKeyframes->size();
+                }
             }
         }
     }
