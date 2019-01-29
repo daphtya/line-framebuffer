@@ -25,28 +25,28 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
         if (c == COMMAND_QUIT) {
             *run = false;
         } else if (c == COMMAND_ROTATE_LEFT) {
-            Polygon* pesawat = (Polygon*) objects->at(0);
-            if (pesawat->getRotation() > -1.2) { pesawat->rotate(-0.2); }
+            Polygon* player = (Polygon*) objects->at(0);
+            if (player->getRotation() > -1.2) { player->rotate(-0.2); }
         } else if (c == COMMAND_ROTATE_RIGHT) {
-            Polygon* pesawat = (Polygon*) objects->at(0);
-            if (pesawat->getRotation() < 1.2) { pesawat->rotate(0.2); }
+            Polygon* player = (Polygon*) objects->at(0);
+            if (player->getRotation() < 1.2) { player->rotate(0.2); }
         } else if (c == COMMAND_MOVE_LEFT) {
-            Polygon* pesawat = (Polygon*) objects->at(0);
-            pesawat->move(-3, 0);
+            Polygon* player = (Polygon*) objects->at(0);
+            player->move(-3, 0);
         } else if (c == COMMAND_MOVE_RIGHT) {
-            Polygon* pesawat = (Polygon*) objects->at(0);
-            pesawat->move(3, 0);
+            Polygon* player = (Polygon*) objects->at(0);
+            player->move(3, 0);
         } else if (c == COMMAND_SHOOT) {
-            Polygon* pesawat = (Polygon*) objects->at(0);
-            std::pair<Coordinate*, Coordinate*>* boundingBox = pesawat->getBoundingBox();
+            Polygon* player = (Polygon*) objects->at(0);
+            std::pair<Coordinate*, Coordinate*>* boundingBox = player->getBoundingBox();
             Coordinate* top = new Coordinate((boundingBox->first->getX() + boundingBox->second->getX()) / 2, boundingBox->first->getY());
-            int toX = top->getX() + 1000 * tan(pesawat->getRotation());
+            int toX = top->getX() + 1000 * tan(player->getRotation());
             Coordinate* dest = new Coordinate(toX, top->getY() - 1000);
 
-            Animated* laser = new Animated("images/laser.point", CYELLOW, dest);
+            Animated* laser = new Animated("images/laser.point", CRED, dest);
             laser->moveTo(top->getX(), top->getY());
             laser->scale(4);
-            laser->rotate(pesawat->getRotation());
+            laser->rotate(player->getRotation());
 
             objects->push_back(laser);
 
@@ -86,10 +86,10 @@ int main(int argc, char **args) {
     bool run = true;
     std::vector<Drawable*>* objects = new std::vector<Drawable*>;
 
-    Polygon* pesawat = new Polygon("images/pesawat.point", CBLUE);
-    pesawat->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes() - 40);
-    pesawat->scale(3);
-    objects->push_back(pesawat);
+    Polygon* player = new Polygon("images/pesawat.point", CBLUE);
+    player->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes() - 40);
+    player->scale(4);
+    objects->push_back(player);
 
     std::thread* t0 = new std::thread(readInput, framebuffer, objects, &run);
     std::thread* t1 = new std::thread(draw, framebuffer, objects, &run);

@@ -35,6 +35,7 @@ public:
             this->addPoint(new Coordinate(x, y));
         }
         f.close();
+        this->c = c;
     }
 
     Polygon(color c) : Polygon() {
