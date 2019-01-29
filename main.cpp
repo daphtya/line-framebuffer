@@ -83,17 +83,30 @@ void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) 
     }
 }
 
-void enemyUpdate(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, Coordinate* coor, bool* run) {
+void enemyUpdate(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, Coordinate* coor) {
     int threshold = 50;
-    int objX;
+    Polygon* enemy = (Polygon*) objects->at(1);;
+    Polygon* obj;
+    bool hit = false;
 
     srand(time(0));
-    while (*run) {
-        //update animation
-        objX = ((Animated*) objects->at(1))->getCenter()->getX();
-        if (abs(objX - coor->getX()) < threshold) {
+    while (!hit) {
+        //update next dest when enemy has arrived to previous destination
+        if (abs(enemy->getCenter()->getX() - coor->getX()) < threshold) {
             coor->setX(rand() % framebuffer->getXRes()*0.9 + framebuffer->getXRes()*0.05);
             coor->setY(rand() % framebuffer->getYRes()*0.2 + framebuffer->getYRes()*0.05);
+        }
+
+        //collision detection
+        for (int i = 0; i < objects->size(); i++) {
+            obj = (Polygon*) objects->at(i);
+            if (obj->getId() == BULLET_OBJ) {
+                if (enemy->isOverlapping(obj->getBoundingBox())) {
+                    objects->erase(objects->begin()+1);
+                    objects->erase(objects->begin()+i);
+                    hit = true;
+                }
+            }
         }
     }
 }
@@ -123,7 +136,7 @@ int main(int argc, char **args) {
 
     std::thread* t0 = new std::thread(readInput, framebuffer, objects, &run);
     std::thread* t1 = new std::thread(draw, framebuffer, objects, &run);
-    std::thread* t2 = new std::thread(enemyUpdate, framebuffer, objects, coor, &run);
+    std::thread* t2 = new std::thread(enemyUpdate, framebuffer, objects, coor);
 
     t0->join();
     t1->join();

@@ -126,6 +126,22 @@ public:
         return new Coordinate(x, y);
     }
 
+    bool isOverlapping(std::pair<Coordinate*, Coordinate*>* otherBoundingBox) {
+        std::pair<Coordinate*, Coordinate*>* thisBoundingBox = this->getBoundingBox();
+        bool overlapX, overlapY;
+
+        overlapX = otherBoundingBox->second->getX() >= thisBoundingBox->first->getX() &&
+            thisBoundingBox->second->getX() >= otherBoundingBox->first->getX();
+
+        overlapY = otherBoundingBox->second->getY() >= thisBoundingBox->first->getY() &&
+            thisBoundingBox->second->getY() >= otherBoundingBox->first->getY();
+
+        delete thisBoundingBox->first;
+        delete thisBoundingBox->second;
+        delete thisBoundingBox;
+        return overlapX && overlapY; 
+    }
+
     void draw(FrameBuffer* framebuffer) {
         int nLines = this->points->size();
 
