@@ -23,10 +23,10 @@ protected:
     std::vector<double>* rotationKeyframes;
 
 public:
-    Animated(std::string filename, color c, bool loop = false,
+    Animated(std::string filename, color c, char id, bool loop = false,
              int maxAnchorVelocity = 0,
              double maxScaleVelocity = 0,
-             double maxRotationVelocity = 0) : Polygon(filename, c) {
+             double maxRotationVelocity = 0) : Polygon(filename, c, id) {
         this->loop = loop;
 
         this->maxAnchorVelocity = maxAnchorVelocity;

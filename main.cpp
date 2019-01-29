@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <utility>
 #include <vector>
+#include <stdlib.h>
+#include <time.h>
 
 #include "utils.hpp"
 
@@ -45,7 +47,7 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
             int toX = top->getX() + 1000 * tan(player->getRotation());
             Coordinate* dest = new Coordinate(toX, top->getY() - 1000);
 
-            Animated* laser = new Animated("images/laser.point", CRED, false, 5, 0.1, 1);
+            Animated* laser = new Animated("images/laser.point", CRED, BULLET_OBJ, false, 5, 0.1, 1);
             laser->addAnchorKeyframe(new Coordinate(top->getX(), top->getY()));
             laser->addAnchorKeyframe(dest);
             laser->addScaleKeyframe(1);
@@ -66,8 +68,11 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
 }
 
 void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) {
+    char type;
+
     while (*run) {
         framebuffer->clearScreen();
+
         for (int i = 0; i < objects->size(); i++) {
             objects->at(i)->draw(framebuffer);
             objects->at(i)->animate();
@@ -77,8 +82,22 @@ void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) 
     }
 }
 
-int main(int argc, char **args) {
+void enemyUpdate(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, Coordinate* coor, bool* run) {
+    int threshold = 50;
+    int objX;
 
+    srand(time(0));
+    while (*run) {
+        //update animation
+        objX = ((Animated*) objects->at(1))->getCenter()->getX();
+        if (abs(objX - coor->getX()) < threshold) {
+            coor->setX(rand() % framebuffer->getXRes()*0.9 + framebuffer->getXRes()*0.05);
+            coor->setY(rand() % framebuffer->getYRes()*0.2 + framebuffer->getYRes()*0.05);
+        }
+    }
+}
+
+int main(int argc, char **args) {
     FrameBuffer* framebuffer;
     try {
         framebuffer = new FrameBuffer();
@@ -90,16 +109,24 @@ int main(int argc, char **args) {
     bool run = true;
     std::vector<Drawable*>* objects = new std::vector<Drawable*>;
 
-    Polygon* player = new Polygon("images/pesawat.point", CBLUE);
+    Polygon* player = new Polygon("images/pesawat.point", CBLUE, PLAYER_OBJ);
     player->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes() - 40);
     player->scale(4);
     objects->push_back(player);
 
+    Coordinate* coor = new Coordinate(framebuffer->getXRes() / 2, framebuffer->getYRes()*0.1);
+    Animated* enemy = new Animated("images/ufo.point", CMAGENTA, ENEMY_OBJ, coor);
+    enemy->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes()*0.1);
+    enemy->scale(4);
+    objects->push_back(enemy);
+
     std::thread* t0 = new std::thread(readInput, framebuffer, objects, &run);
     std::thread* t1 = new std::thread(draw, framebuffer, objects, &run);
+    std::thread* t2 = new std::thread(enemyUpdate, framebuffer, objects, coor, &run);
 
     t0->join();
     t1->join();
+    t2->join();
 
     delete player;
     delete t0;
