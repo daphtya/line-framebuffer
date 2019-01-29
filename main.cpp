@@ -63,6 +63,7 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
 void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) {
     while (*run) {
         framebuffer->clearScreen();
+
         for (int i = 0; i < objects->size(); i++) {
             objects->at(i)->draw(framebuffer);
             if (objects->at(i)->isAnimated()) {
@@ -91,6 +92,11 @@ int main(int argc, char **args) {
     player->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes() - 40);
     player->scale(4);
     objects->push_back(player);
+
+    Polygon* enemy = new Polygon("images/ufo.point", CMAGENTA);
+    enemy->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes()*0.1);
+    enemy->scale(4);
+    objects->push_back(enemy);
 
     std::thread* t0 = new std::thread(readInput, framebuffer, objects, &run);
     std::thread* t1 = new std::thread(draw, framebuffer, objects, &run);
