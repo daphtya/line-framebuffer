@@ -11,7 +11,6 @@
 #include "drawable.hpp"
 #include "framebuffer.hpp"
 #include "line.hpp"
-#include "utils.hpp"
 
 class Polygon : public Drawable {
 protected:
@@ -80,16 +79,24 @@ public:
         this->scaleFactor *= scaleFactor;
     }
 
+    void scaleTo(double scaleFactor, double maxVelocity = 0) {
+        if (this->scaleFactor > scaleFactor) {
+            this->scaleFactor = std::max(this->scaleFactor - maxVelocity, scaleFactor);
+        } else {
+            this->scaleFactor = std::min(this->scaleFactor + maxVelocity, scaleFactor);
+        }
+    }
+
     void rotate(double rotation) {
         this->rotation += rotation;
     }
 
-    double getRotation() const {
-        return this->rotation;
+    double getScaleFactor() const {
+        return this->scaleFactor;
     }
 
-    virtual bool isAnimated() const {
-        return false;
+    double getRotation() const {
+        return this->rotation;
     }
 
     std::pair<Coordinate*, Coordinate*>* getBoundingBox() {

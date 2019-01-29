@@ -43,10 +43,12 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
             int toX = top->getX() + 1000 * tan(player->getRotation());
             Coordinate* dest = new Coordinate(toX, top->getY() - 1000);
 
-            Animated* laser = new Animated("images/laser.point", CRED, dest);
-            laser->moveTo(top->getX(), top->getY());
+            Animated* laser = new Animated("images/laser.point", CRED, false, 10, 0.1);
+            laser->addAnchorKeyframe(new Coordinate(top->getX(), top->getY()));
+            laser->addAnchorKeyframe(dest);
+            laser->addScaleKeyframe(1);
+            laser->addScaleKeyframe(10);
             laser->moveWithoutAnchor(0, -10);
-            laser->scale(4);
             laser->rotate(player->getRotation());
 
             objects->push_back(laser);
@@ -65,9 +67,7 @@ void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) 
         framebuffer->clearScreen();
         for (int i = 0; i < objects->size(); i++) {
             objects->at(i)->draw(framebuffer);
-            if (objects->at(i)->isAnimated()) {
-                objects->at(i)->animate(10);
-            }
+            objects->at(i)->animate();
         }
         framebuffer->draw();
         usleep(10000);

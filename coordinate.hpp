@@ -35,10 +35,10 @@ public:
     }
 
     Coordinate* transform(double scaleFactor, double rotation, Coordinate* center) {
-        int cx = center->getX();
-        int cy = center->getY();
-        int x = (this->x - cx) * scaleFactor + cx;
-        int y = (this->y - cy) * scaleFactor + cy;
+        double cx = center->getX();
+        double cy = center->getY();
+        double x = ((double) this->x - cx) * 1.0 * scaleFactor + cx;
+        double y = ((double) this->y - cy) * 1.0 * scaleFactor + cy;
         int newX = cos(rotation) * (x - cx) - sin(rotation) * (y - cy) + cx;
         int newY = sin(rotation) * (x - cx) + cos(rotation) * (y - cy) + cy;
         return new Coordinate(newX, newY);

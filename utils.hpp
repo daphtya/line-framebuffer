@@ -3,6 +3,8 @@
 
 #include <iostream>
 
-void log(std::string s);
+void flog(std::string s);
+void flog(double f);
+void flog(int x);
 
 #endif

@@ -64,10 +64,6 @@ class Line : public Drawable {
 		this->to->move(dx, dy);
 	}
 
-	virtual bool isAnimated() const {
-		return false;
-	}
-
 	void draw(FrameBuffer* framebuffer) {
 		int dx = this->to->getX() - this->from->getX();
 		int dy = this->to->getY() - this->from->getY();
