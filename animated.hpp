@@ -18,8 +18,15 @@ protected:
     int nextScaleKeyframes;
     std::vector<double>* scaleKeyframes;
 
+    double maxRotationVelocity;
+    int nextRotationKeyframes;
+    std::vector<double>* rotationKeyframes;
+
 public:
-    Animated(std::string filename, color c, bool loop = false, int maxAnchorVelocity = 0, double maxScaleVelocity = 0) : Polygon(filename, c) {
+    Animated(std::string filename, color c, bool loop = false,
+             int maxAnchorVelocity = 0,
+             double maxScaleVelocity = 0,
+             double maxRotationVelocity = 0) : Polygon(filename, c) {
         this->loop = loop;
 
         this->maxAnchorVelocity = maxAnchorVelocity;
@@ -29,6 +36,10 @@ public:
         this->maxScaleVelocity = maxScaleVelocity;
         this->nextScaleKeyframes = 0;
         this->scaleKeyframes = new std::vector<double>();
+
+        this->maxRotationVelocity = maxRotationVelocity;
+        this->nextRotationKeyframes = 0;
+        this->rotationKeyframes = new std::vector<double>();
     }
 
     ~Animated() {
@@ -36,6 +47,8 @@ public:
             delete this->anchorKeyframes->at(i);
         }
         delete this->anchorKeyframes;
+        delete this->scaleKeyframes;
+        delete this->rotationKeyframes;
     }
 
     void addAnchorKeyframe(Coordinate* anchor) {
@@ -54,6 +67,14 @@ public:
         this->scaleKeyframes->push_back(scale);
     }
 
+    void addRotationKeyframe(double rotation) {
+        if (this->rotationKeyframes->empty()) {
+            this->rotate(rotation);
+            this->nextRotationKeyframes = 1;
+        }
+        this->rotationKeyframes->push_back(rotation);
+    }
+
     void animate() {
         if (!this->anchorKeyframes->empty() && this->anchorKeyframes->size() > this->nextAnchorKeyframes) {
             int fromX = this->anchor->getX();
@@ -68,11 +89,18 @@ public:
         if (!this->scaleKeyframes->empty() && this->scaleKeyframes->size() > this->nextScaleKeyframes) {
             double from = this->getScaleFactor();
             double to = this->scaleKeyframes->at(this->nextScaleKeyframes);
-            flog(from);
-            flog(to);
             this->scaleTo(to, this->maxScaleVelocity);
             if (from == this->getScaleFactor()) {
                 this->nextScaleKeyframes++;
+            }
+        }
+
+        if (!this->rotationKeyframes->empty() && this->rotationKeyframes->size() > this->nextRotationKeyframes) {
+            double from = this->getRotation();
+            double to = this->rotationKeyframes->at(this->nextRotationKeyframes);
+            this->rotateTo(to, this->maxRotationVelocity);
+            if (from == this->getRotation()) {
+                this->nextRotationKeyframes++;
             }
         }
     }

@@ -3,8 +3,6 @@
 
 #include <cmath>
 
-#include "utils.hpp"
-
 class Coordinate {
 private:
     int x;

@@ -91,6 +91,14 @@ public:
         this->rotation += rotation;
     }
 
+    void rotateTo(double rotation, double maxVelocity = 0) {
+        if (this->rotation > rotation) {
+            this->rotation = std::max(this->rotation - maxVelocity, rotation);
+        } else {
+            this->rotation = std::min(this->rotation + maxVelocity, rotation);
+        }
+    }
+
     double getScaleFactor() const {
         return this->scaleFactor;
     }

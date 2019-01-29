@@ -4,6 +4,8 @@
 #include <utility>
 #include <vector>
 
+#include "utils.hpp"
+
 #include "animated.hpp"
 #include "drawable.hpp"
 #include "framebuffer.hpp"
@@ -43,13 +45,14 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
             int toX = top->getX() + 1000 * tan(player->getRotation());
             Coordinate* dest = new Coordinate(toX, top->getY() - 1000);
 
-            Animated* laser = new Animated("images/laser.point", CRED, false, 10, 0.1);
+            Animated* laser = new Animated("images/laser.point", CRED, false, 5, 0.1, 1);
             laser->addAnchorKeyframe(new Coordinate(top->getX(), top->getY()));
             laser->addAnchorKeyframe(dest);
             laser->addScaleKeyframe(1);
             laser->addScaleKeyframe(10);
+            laser->addRotationKeyframe(player->getRotation());
+            // laser->addRotationKeyframe(720);
             laser->moveWithoutAnchor(0, -10);
-            laser->rotate(player->getRotation());
 
             objects->push_back(laser);
 
