@@ -43,7 +43,7 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
             int toX = top->getX() + 1000 * tan(player->getRotation());
             Coordinate* dest = new Coordinate(toX, top->getY() - 1000);
 
-            Animated* laser = new Animated("images/laser.point", CRED, dest);
+            Animated* laser = new Animated("images/laser.point", CRED, BULLET_OBJ, dest);
             laser->moveTo(top->getX(), top->getY());
             laser->moveWithoutAnchor(0, -10);
             laser->scale(4);
@@ -88,12 +88,12 @@ int main(int argc, char **args) {
     bool run = true;
     std::vector<Drawable*>* objects = new std::vector<Drawable*>;
 
-    Polygon* player = new Polygon("images/pesawat.point", CBLUE);
+    Polygon* player = new Polygon("images/pesawat.point", CBLUE, PLAYER_OBJ);
     player->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes() - 40);
     player->scale(4);
     objects->push_back(player);
 
-    Polygon* enemy = new Polygon("images/ufo.point", CMAGENTA);
+    Polygon* enemy = new Polygon("images/ufo.point", CMAGENTA, ENEMY_OBJ);
     enemy->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes()*0.1);
     enemy->scale(4);
     objects->push_back(enemy);

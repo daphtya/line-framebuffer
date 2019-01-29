@@ -9,7 +9,7 @@ protected:
     Coordinate* destination;
 
 public:
-    Animated(std::string filename, color c, Coordinate* destination) : Polygon(filename, c) {
+    Animated(std::string filename, color c, char id, Coordinate* destination) : Polygon(filename, c, id) {
         this->destination = destination;
     }
 

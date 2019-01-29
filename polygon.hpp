@@ -13,6 +13,11 @@
 #include "line.hpp"
 #include "utils.hpp"
 
+#define NULL_OBJ 0
+#define PLAYER_OBJ 1
+#define ENEMY_OBJ 2
+#define BULLET_OBJ 3
+
 class Polygon : public Drawable {
 protected:
     std::vector<Coordinate*>* points;
@@ -20,6 +25,7 @@ protected:
     color c;
     double scaleFactor;
     double rotation; // rad
+    char id; // polygon identifier
 
 public:
     Polygon() {
@@ -27,9 +33,10 @@ public:
         this->c = CWHITE;
         this->scaleFactor = 1;
         this->rotation = 0;
+        this->id = NULL_OBJ;
     }
 
-    Polygon(std::string filename, color c) : Polygon() {
+    Polygon(std::string filename, color c, char id) : Polygon() {
         std::ifstream f(filename);
         int x, y;
         while (f >> x >> y) {
@@ -38,6 +45,7 @@ public:
         f.close();
         this->c = c;
         this->anchor = this->getCenter();
+        this->id = id;
     }
 
     ~Polygon() {
@@ -86,6 +94,10 @@ public:
 
     double getRotation() const {
         return this->rotation;
+    }
+
+    char getId() const {
+        return this->id;
     }
 
     virtual bool isAnimated() const {
