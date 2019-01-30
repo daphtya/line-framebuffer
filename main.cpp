@@ -45,7 +45,6 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
         } else if (c == COMMAND_SHOOT) {
             Polygon* player = (Polygon*) objects->at(0);
             Coordinate* anchor = player->getAnchor();
-            flog(player->getRotation());
             int toX = anchor->getX() + 1000 * tan(player->getRotation());
             int fromX = anchor->getX() - 40 * cos(PI / 2 + player->getRotation());
             int fromY = anchor->getY() - 40 * sin(PI / 2 + player->getRotation());
