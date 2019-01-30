@@ -12,10 +12,10 @@
 #include "framebuffer.hpp"
 #include "line.hpp"
 
-#define NULL_OBJ 0
-#define PLAYER_OBJ 1
-#define ENEMY_OBJ 2
-#define BULLET_OBJ 3
+#define NULL_OBJ 1
+#define PLAYER_OBJ 2
+#define ENEMY_OBJ 3
+#define LASER_OBJ 4
 
 class Polygon : public Drawable {
 protected:
@@ -37,13 +37,17 @@ public:
 
     Polygon(std::string filename, color c, char id) : Polygon() {
         std::ifstream f(filename);
-        int x, y;
+        int x, y, minX, maxX, minY, maxY;
+        bool first = true;
         while (f >> x >> y) {
+            if (true) { minX = maxX = x; minY = maxY = y; }
+            minX = std::min(minX, x); maxX = std::max(maxX, x);
+            minY = std::min(minY, y); maxY = std::max(maxY, y);
             this->addPoint(new Coordinate(x, y));
         }
         f.close();
         this->c = c;
-        this->anchor = this->getCenter();
+        this->anchor = new Coordinate((minX + maxX) / 2, (minY + maxY) / 2);
         this->id = id;
     }
 
@@ -63,6 +67,10 @@ public:
 
     void addPoint(Coordinate* coordinate) {
         this->points->push_back(coordinate);
+    }
+
+    Coordinate* getAnchor() const {
+        return this->anchor;
     }
 
     void move(int dx, int dy) {
@@ -121,13 +129,17 @@ public:
     }
 
     std::pair<Coordinate*, Coordinate*>* getBoundingBox() {
-        int minX = this->points->at(0)->getX(); int maxX = minX;
-        int minY = this->points->at(0)->getY(); int maxY = minY;
+        Coordinate* point = this->points->at(0)->transform(this->scaleFactor, this->rotation, this->anchor);
+        int minX = point->getX(); int maxX = minX;
+        int minY = point->getY(); int maxY = minY;
+        delete point;
         for (int i = 1; i < this->points->size(); i++) {
-            int x = this->points->at(i)->getX();
-            int y = this->points->at(i)->getY();
+            point = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
+            int x = point->getX();
+            int y = point->getY();
             minX = std::min(minX, x); maxX = std::max(maxX, x);
             minY = std::min(minY, y); maxY = std::max(maxY, y);
+            delete point;
         }
         return new std::pair<Coordinate*, Coordinate*>(new Coordinate(minX, minY), new Coordinate(maxX, maxY));
     }

@@ -42,14 +42,12 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
             player->move(3, 0);
         } else if (c == COMMAND_SHOOT) {
             Polygon* player = (Polygon*) objects->at(0);
-            std::pair<Coordinate*, Coordinate*>* boundingBox = player->getBoundingBox();
-            Coordinate* top = new Coordinate((boundingBox->first->getX() + boundingBox->second->getX()) / 2, boundingBox->first->getY());
+            Coordinate* top = new Coordinate(player->getAnchor()->getX(), player->getAnchor()->getY());
             int toX = top->getX() + 1000 * tan(player->getRotation());
-            Coordinate* dest = new Coordinate(toX, top->getY() - 1000);
 
-            Animated* laser = new Animated("images/laser.point", CRED, BULLET_OBJ, false, 5, 0.1, 1);
+            Animated* laser = new Animated("images/laser.point", CRED, LASER_OBJ, false, 5, 0.1, 1);
             laser->addAnchorKeyframe(new Coordinate(top->getX(), top->getY()));
-            laser->addAnchorKeyframe(dest);
+            laser->addAnchorKeyframe(new Coordinate(toX, top->getY() - 1000));
             laser->addScaleKeyframe(1);
             laser->addScaleKeyframe(10);
             laser->addRotationKeyframe(player->getRotation());
@@ -57,18 +55,14 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
             laser->moveWithoutAnchor(0, -10);
 
             objects->push_back(laser);
-
             delete top;
-            delete boundingBox->first;
-            delete boundingBox->second;
-            delete boundingBox;
         }
     }
     endwin();
 }
 
 void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) {
-    char type;
+    Polygon* enemy = (Polygon*) objects->at(1);
 
     while (*run) {
         framebuffer->clearScreen();
@@ -76,31 +70,19 @@ void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) 
         for (int i = 0; i < objects->size(); i++) {
             objects->at(i)->draw(framebuffer);
             objects->at(i)->animate();
-        }
-        framebuffer->draw();
-        usleep(10000);
-    }
-}
-
-void enemyUpdate(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) {
-    int threshold = 50;
-    Polygon* enemy = (Polygon*) objects->at(1);;
-    Polygon* obj;
-    bool hit = false;
-
-    srand(time(0));
-    while (!hit && *run) {
-        //collision detection
-        for (int i = 0; i < objects->size(); i++) {
-            obj = (Polygon*) objects->at(i);
-            if (obj->getId() == BULLET_OBJ) {
-                if (enemy->isOverlapping(obj->getBoundingBox())) {
-                    objects->erase(objects->begin()+1);
-                    objects->erase(objects->begin()+i);
-                    hit = true;
+            if (objects->at(i)->getId() == LASER_OBJ) {
+                Animated* laser = (Animated*) objects->at(i);
+                int dx = abs(laser->getAnchor()->getX() - enemy->getAnchor()->getX());
+                int dy = abs(laser->getAnchor()->getY() - enemy->getAnchor()->getY());
+                if (dx * dx + dy * dy <= 200) {
+                    flog(dx);
+                    flog(dy);
+                    *run = false;
                 }
             }
         }
+        framebuffer->draw();
+        usleep(10000);
     }
 }
 
@@ -117,7 +99,7 @@ int main(int argc, char **args) {
     std::vector<Drawable*>* objects = new std::vector<Drawable*>;
 
     Polygon* player = new Polygon("images/pesawat.point", CBLUE, PLAYER_OBJ);
-    player->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes() - 40);
+    player->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes() - 80);
     player->scale(4);
     objects->push_back(player);
 
@@ -132,11 +114,9 @@ int main(int argc, char **args) {
 
     std::thread* t0 = new std::thread(readInput, framebuffer, objects, &run);
     std::thread* t1 = new std::thread(draw, framebuffer, objects, &run);
-    std::thread* t2 = new std::thread(enemyUpdate, framebuffer, objects, &run);
 
     t0->join();
     t1->join();
-    t2->join();
 
     delete player;
     delete enemy;

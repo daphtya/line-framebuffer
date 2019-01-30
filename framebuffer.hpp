@@ -83,7 +83,6 @@ public:
     }
 
     void draw() {
-        memset(this->fbp, 0, this->screensize);
         memcpy(this->fbp, this->lazy, this->screensize);
     }
 };
