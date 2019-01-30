@@ -63,21 +63,29 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
 
 void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) {
     Polygon* enemy = (Polygon*) objects->at(1);
+    bool hit = false;
 
     while (*run) {
         framebuffer->clearScreen();
 
         for (int i = 0; i < objects->size(); i++) {
             objects->at(i)->draw(framebuffer);
-            objects->at(i)->animate();
+            if (objects->at(i)->getId() != ENEMY_OBJ || !hit)
+                objects->at(i)->animate();
             if (objects->at(i)->getId() == LASER_OBJ) {
                 Animated* laser = (Animated*) objects->at(i);
                 int dx = abs(laser->getAnchor()->getX() - enemy->getAnchor()->getX());
                 int dy = abs(laser->getAnchor()->getY() - enemy->getAnchor()->getY());
-                if (dx * dx + dy * dy <= 200) {
-                    flog(dx);
-                    flog(dy);
-                    *run = false;
+                if (dx * dx + dy * dy <= 10000) {
+                    hit = true;
+                    Animated* explosion = new Animated("images/explosion.point", CYELLOW, EXPLOSION_OBJ, false, 0, 0.3, 0.1);
+                    explosion->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX(), enemy->getAnchor()->getY()));
+                    explosion->addScaleKeyframe(1);
+                    explosion->addScaleKeyframe(30);
+                    explosion->addRotationKeyframe(0);
+                    explosion->addRotationKeyframe(30);
+
+                    objects->push_back(explosion);
                 }
             }
         }

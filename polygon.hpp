@@ -16,6 +16,7 @@
 #define PLAYER_OBJ 2
 #define ENEMY_OBJ 3
 #define LASER_OBJ 4
+#define EXPLOSION_OBJ 5
 
 class Polygon : public Drawable {
 protected:
