@@ -41,7 +41,8 @@ public:
         int x, y, minX, maxX, minY, maxY;
         bool first = true;
         while (f >> x >> y) {
-            if (true) { minX = maxX = x; minY = maxY = y; }
+            if (first) { minX = maxX = x; minY = maxY = y; }
+            first = false;
             minX = std::min(minX, x); maxX = std::max(maxX, x);
             minY = std::min(minY, y); maxY = std::max(maxY, y);
             this->addPoint(new Coordinate(x, y));

@@ -9,6 +9,8 @@
 class Animated : public Polygon {
 protected:
     bool loop;
+    bool hidden;
+    bool hiddenAfterFinish;
 
     int maxAnchorVelocity;
     int nextAnchorKeyframes;
@@ -28,6 +30,8 @@ public:
              double maxScaleVelocity = 0,
              double maxRotationVelocity = 0) : Polygon(filename, c, id) {
         this->loop = loop;
+        this->hidden = false;
+        this->hiddenAfterFinish = false;
 
         this->maxAnchorVelocity = maxAnchorVelocity;
         this->nextAnchorKeyframes = 0;
@@ -75,6 +79,14 @@ public:
         this->rotationKeyframes->push_back(rotation);
     }
 
+    void hide() {
+        this->hidden = true;
+    }
+
+    void hideAfterFinished() {
+        this->hiddenAfterFinish = true;
+    }
+
     void animate() {
         if (!this->anchorKeyframes->empty() && this->anchorKeyframes->size() > this->nextAnchorKeyframes) {
             int fromX = this->anchor->getX();
@@ -111,6 +123,17 @@ public:
                     this->nextRotationKeyframes %= this->rotationKeyframes->size();
                 }
             }
+        }
+        if (this->nextAnchorKeyframes == this->anchorKeyframes->size() &&
+            this->nextRotationKeyframes == this->rotationKeyframes->size() &&
+            this->nextScaleKeyframes == this->scaleKeyframes->size()) {
+            this->hide();
+        }
+    }
+
+    void draw(FrameBuffer* framebuffer) {
+        if (!this->hidden) {
+            Polygon::draw(framebuffer);
         }
     }
 };
