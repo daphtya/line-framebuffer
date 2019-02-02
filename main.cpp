@@ -13,6 +13,7 @@
 #include "framebuffer.hpp"
 #include "line.hpp"
 #include "polygon.hpp"
+#include "physical.hpp"
 
 #define PI acos(-1)
 
@@ -91,6 +92,19 @@ void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) 
 
                     objects->push_back(explosion);
                     enemy->hide();
+                    
+                    Physical* wreck1 = new Physical("images/ufofragL.point", CMAGENTA, PHYSICAL_OBJ, -5, 10);
+                    wreck1->scale(4);
+                    wreck1->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX(), enemy->getAnchor()->getY()));
+                    wreck1->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX()-5, enemy->getAnchor()->getY()+10));
+                    
+                    Physical* wreck2 = new Physical("images/ufofragL.point", CMAGENTA, PHYSICAL_OBJ, 5, 10);
+                    wreck2->scale(4);
+                    wreck2->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX(), enemy->getAnchor()->getY()));
+                    wreck2->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX()+5, enemy->getAnchor()->getY()+10));
+                    
+                    objects->push_back(wreck1);
+                    objects->push_back(wreck2);
                 }
             }
         }
