@@ -7,7 +7,7 @@
 
 #define GRAVITY_ACCEL 2
 #define BOUNCE_COEFF -0.8
-#define BOUNCE_THRESHOLD 3
+#define BOUNCE_THRESHOLD 10
 
 
 
@@ -71,14 +71,14 @@ public:
 	void draw(FrameBuffer* framebuffer) {
 		Coordinate* position = this->getCenter();
 		if (position->getX() <= 0 || position->getX() >= framebuffer->getXRes()) {
-			if (!this->bounce || abs(this->xVelocity) < BOUNCE_THRESHOLD) {
+			if (!this->bounce /*|| abs(this->xVelocity) <= BOUNCE_THRESHOLD*/) {
 				this->hide();
 			} else {
 				this->xVelocity *= BOUNCE_COEFF;
 			}
 		}
 		if (position->getY() <= 0 || position->getY() >= framebuffer->getYRes()) {
-			if (!this->bounce /*|| abs(this->yVelocity) < BOUNCE_THRESHOLD */) {
+			if (!this->bounce || abs(this->yVelocity) < BOUNCE_THRESHOLD) {
 				this->hide();
 			} else {
 				this->yVelocity *= BOUNCE_COEFF;
