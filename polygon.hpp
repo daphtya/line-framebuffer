@@ -189,7 +189,7 @@ public:
             delete line;
         }
 
-        //fill(framebuffer);
+        fill(framebuffer);
     }
 
     void createEdges(){
@@ -247,7 +247,7 @@ public:
 
         for (int i = 0; i < nLines; i++){
             MinIndex = i;
-            MinX = e.x;
+            MinX = EdgeTable[i].x;
             for(int j = i; j<nLines; j++){
                 if(EdgeTable[j].x < MinX){
                     MinX = EdgeTable[j].x;
@@ -265,7 +265,6 @@ public:
 
     void fill(FrameBuffer* framebuffer) {
         this->createEdges();
-        this->sortEdges();
         int minY, maxY;
         int nLines = this->points->size();
         bool activeList[nLines];
@@ -273,24 +272,25 @@ public:
         maxY = minY;
 
         for (int i = 0; i < nLines; i++) {
-            Coordinate* c = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
-            if (c->getY() < minY){
-                minY = c->getY();
-            }else if (c->getY() > maxY){
-                maxY = c->getY();
+            Coordinate* coor = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
+            if (coor->getY() < minY){
+                minY = coor->getY();
+            }else if (coor->getY() > maxY){
+                maxY = coor->getY();
             }
 
             activeList[i] = false;
 
-            delete c;
+            delete coor;
         }
 
         for(int y = minY; y <= maxY; y++){
             //Add and remove edge from active list
+            this->sortEdges();
             for (int i = 0; i < nLines; i++){
-                if (EdgeTable[i].MaxY == y){
+                if (EdgeTable[i].MaxY >= y){
                     activeList[i] == false;
-                }else if(EdgeTable[i].MinY == y){
+                }else if(EdgeTable[i].MinY <= y){
                     activeList[i] = true;
                 } 
             }
@@ -300,27 +300,37 @@ public:
             bool odd = false;
             for (int i = 0; i < nLines; i++){
                 if(activeList[i]){
-                    if(!odd){
-                        odd = true;
-                        c1 = new Coordinate(EdgeTable[i].x, y);
-                    }else{
-                        odd = false;
-                        c2 = new Coordinate(EdgeTable[i].x, y);
+                    Coordinate* coor = new Coordinate(EdgeTable[i].x, y - 1);
+                    color col1, col2, col3;
+                    col1 = framebuffer->lazyCheck(coor);
+                    coor->setX(coor->getX() + 1);
+                    col2 = framebuffer->lazyCheck(coor);
+                    coor->setX(coor->getX() - 2);
+                    col3 = framebuffer->lazyCheck(coor);
+                    delete coor;
+                    if(col1 == this->c || col2 == this->c || col3 == this->c){
+                        if(!odd){
+                            odd = true;
+                            c1 = new Coordinate(EdgeTable[i].x, y);
+                        }else{
+                            odd = false;
+                            c2 = new Coordinate(EdgeTable[i].x, y);
 
-                        Line* line = new Line(c1->getX(), c1->getY(), c2->getX(), c2->getY(), this->c, this->c);
-                        line->draw(framebuffer);
-                        delete c1;
-                        delete c2;
-                        delete line;
-                    }
+                            Line* line = new Line(c1->getX(), c1->getY(), c2->getX(), c2->getY(), this->c, this->c);
+                            line->draw(framebuffer);
+                            delete c1;
+                            delete c2;
+                            delete line;
+                        }
 
-                    if(EdgeTable[i].dX != 0){
-                        EdgeTable[i].sum += EdgeTable[i].dX;
-                    }
+                        if(EdgeTable[i].dX != 0){
+                            EdgeTable[i].sum += EdgeTable[i].dX;
+                        }
 
-                    while(EdgeTable[i].sum >= EdgeTable[i].dY){
-                        EdgeTable[i].x += EdgeTable[i].sign;
-                        EdgeTable[i].sum -= EdgeTable[i].dY;
+                        while(EdgeTable[i].sum >= EdgeTable[i].dY){
+                            EdgeTable[i].x += EdgeTable[i].sign;
+                            EdgeTable[i].sum -= EdgeTable[i].dY;
+                        }
                     }
                 }
             }
