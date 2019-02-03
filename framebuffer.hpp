@@ -78,6 +78,17 @@ public:
         }
     }
 
+    color lazyCheck(Coordinate* coordinate) {
+        int x = coordinate->getX();
+        int y = coordinate->getY();
+        if (y >= 0 && y < this->getYRes()) {
+            if (x >= 0 && x < this->getXRes()) {
+                long int location = (x + this->getXOffset()) + (y + this->getYOffset()) * this->getYLength() / 4;
+                return this->lazy[location];
+            }
+        }
+    }
+
     void clearScreen() {
         memset(this->lazy, 0, this->screensize);
     }
