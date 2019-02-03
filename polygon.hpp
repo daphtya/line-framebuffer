@@ -11,6 +11,8 @@
 #include "drawable.hpp"
 #include "framebuffer.hpp"
 #include "line.hpp"
+#include "fillable.hpp"
+#include "edgebucket.hpp"
 
 #define NULL_OBJ 1
 #define PLAYER_OBJ 2
@@ -19,7 +21,7 @@
 #define EXPLOSION_OBJ 5
 #define PHYSICAL_OBJ 6
 
-class Polygon : public Drawable {
+class Polygon : public Drawable, Fillable {
 protected:
     std::vector<Coordinate*>* points;
     Coordinate* anchor;
@@ -27,6 +29,7 @@ protected:
     double scaleFactor;
     double rotation; // rad
     char id; // polygon identifier
+    edgebucket* EdgeTable = NULL;
 
 public:
     Polygon() {
@@ -185,6 +188,144 @@ public:
             delete c2;
             delete line;
         }
+
+        //fill(framebuffer);
+    }
+
+    void createEdges(){
+        this->EdgeTable = new edgebucket[this->points->size()];
+        int nLines = this->points->size();
+
+        for (int i = 0; i < this->points->size(); i++) {
+            Coordinate* c1 = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
+            Coordinate* c2 = this->points->at((i + 1) % nLines)->transform(this->scaleFactor, this->rotation, this->anchor);
+            int dx = c2->getX() - c1->getX();
+            int dy = c2->getY() - c1->getY();
+
+            if(dy != 0){
+                int yMax, yMin, x, sign;
+                if (c1->getY() > c2->getY()){
+                    yMax = c1->getY();
+                    yMin = c2->getY();
+                    x = c1 ->getX();
+                }else{
+                    yMax = c2->getY();
+                    yMin = c1->getY();
+                    x = c1 ->getX();
+                }
+
+                
+
+                if(dx != 0){
+                    if(dy/dx > 0){
+                        sign = 1;
+                    }else{
+                        sign = -1;
+                    }
+                }else{
+                    sign = 0;
+                }
+
+                this->EdgeTable[i] = edgebucket(yMax, yMin, x, sign, dx, dy, 0);
+                //std::cout << "yMax " << yMax << " yMin " << yMin << " x " << x << " sign " << sign << " dx " << dx << " dy " << dy << std::endl;
+            }else{
+                this->EdgeTable[i] = edgebucket(0, 0, 0, 0, 0, 0, 0);
+            }
+
+
+            delete c1;
+            delete c2;
+        }
+    }
+
+    void sortEdges(){
+        //sorts edges by starting X;
+        int nLines = this->points->size();
+        edgebucket e;
+        int MinX;
+        int MinIndex;
+
+        for (int i = 0; i < nLines; i++){
+            MinIndex = i;
+            MinX = e.x;
+            for(int j = i; j<nLines; j++){
+                if(EdgeTable[j].x < MinX){
+                    MinX = EdgeTable[j].x;
+                    MinIndex = j;
+                }
+            }
+
+            if (MinIndex != i){
+                e = EdgeTable[i];
+                EdgeTable[i] = EdgeTable[MinIndex];
+                EdgeTable[MinIndex] = e;
+            }
+        }
+    }
+
+    void fill(FrameBuffer* framebuffer) {
+        this->createEdges();
+        this->sortEdges();
+        int minY, maxY;
+        int nLines = this->points->size();
+        bool activeList[nLines];
+        minY = this->points->at(0)->transform(this->scaleFactor, this->rotation, this->anchor)->getY();
+        maxY = minY;
+
+        for (int i = 0; i < nLines; i++) {
+            Coordinate* c = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
+            if (c->getY() < minY){
+                minY = c->getY();
+            }else if (c->getY() > maxY){
+                maxY = c->getY();
+            }
+
+            activeList[i] = false;
+
+            delete c;
+        }
+
+        for(int y = minY; y <= maxY; y++){
+            //Add and remove edge from active list
+            for (int i = 0; i < nLines; i++){
+                if (EdgeTable[i].MaxY == y){
+                    activeList[i] == false;
+                }else if(EdgeTable[i].MinY == y){
+                    activeList[i] = true;
+                } 
+            }
+
+            Coordinate* c1;
+            Coordinate* c2;
+            bool odd = false;
+            for (int i = 0; i < nLines; i++){
+                if(activeList[i]){
+                    if(!odd){
+                        odd = true;
+                        c1 = new Coordinate(EdgeTable[i].x, y);
+                    }else{
+                        odd = false;
+                        c2 = new Coordinate(EdgeTable[i].x, y);
+
+                        Line* line = new Line(c1->getX(), c1->getY(), c2->getX(), c2->getY(), this->c, this->c);
+                        line->draw(framebuffer);
+                        delete c1;
+                        delete c2;
+                        delete line;
+                    }
+
+                    if(EdgeTable[i].dX != 0){
+                        EdgeTable[i].sum += EdgeTable[i].dX;
+                    }
+
+                    while(EdgeTable[i].sum >= EdgeTable[i].dY){
+                        EdgeTable[i].x += EdgeTable[i].sign;
+                        EdgeTable[i].sum -= EdgeTable[i].dY;
+                    }
+                }
+            }
+        }
+
     }
 };
 
