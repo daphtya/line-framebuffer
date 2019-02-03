@@ -5,7 +5,7 @@
 #include "framebuffer.hpp"
 #include "utils.hpp"
 
-#define GRAVITY_ACCEL 2
+#define GRAVITY_ACCEL 1
 #define BOUNCE_COEFF -0.8
 #define BOUNCE_THRESHOLD 10
 
@@ -20,11 +20,14 @@ protected:
 	int yVelocity;
 	bool gravity;
 	bool bounce;
+	int drag;
+	int dragerror;
 
 public:
 	Physical(std::string filename, color c, char id,
 			 int horizonVelocity = 0,
 			 int verticalVelocity = 0,
+			 int drag = 0,
 			 bool bounce = true,
 			 bool gravity = true,
              double maxScaleVelocity = 0,
@@ -34,6 +37,8 @@ public:
 		this->yVelocity = verticalVelocity;
 		this->gravity = gravity;
 		this->bounce = bounce;
+		this->drag = drag;
+		this->dragerror = 0;
 	}
 
 	void setBounce(bool bounce) {
@@ -60,8 +65,14 @@ public:
 		
 			this->maxAnchorVelocity = pythagoreanApprox(this->xVelocity, this->yVelocity);
 
-			if (this->gravity)
-				this->yVelocity += GRAVITY_ACCEL;
+			if (this->gravity) {
+				// if (this->dragerror < this->drag) {
+				// 	this->dragerror ++;
+				// } else { 
+				// 	this->dragerror = 0;
+					this->yVelocity += GRAVITY_ACCEL;
+				// }
+			}
 		}
 		Animated::animate();
 	}
@@ -78,7 +89,7 @@ public:
 			}
 		}
 		if (position->getY() <= 0 || position->getY() >= framebuffer->getYRes()) {
-			if (!this->bounce || abs(this->yVelocity) < BOUNCE_THRESHOLD) {
+			if (!this->bounce || (abs(this->yVelocity) < BOUNCE_THRESHOLD && position->getY() >= framebuffer->getYRes())) {
 				this->hide();
 			} else {
 				this->yVelocity *= BOUNCE_COEFF;
