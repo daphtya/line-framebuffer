@@ -226,7 +226,7 @@ public:
                     sign = 0;
                 }
 
-                this->EdgeTable[i] = edgebucket(yMax, yMin, x, sign, dx, dy, 0);
+                this->EdgeTable[i] = edgebucket(yMax, yMin, x, sign, abs(dx), abs(dy), 0);
                 //std::cout << "yMax " << yMax << " yMin " << yMin << " x " << x << " sign " << sign << " dx " << dx << " dy " << dy << std::endl;
             }else{
                 this->EdgeTable[i] = edgebucket(0, 0, 0, 0, 0, 0, 0);
@@ -265,11 +265,13 @@ public:
 
     void fill(FrameBuffer* framebuffer) {
         this->createEdges();
-        int minY, maxY;
+        int minY, maxY, minX, maxX;
         int nLines = this->points->size();
         bool activeList[nLines];
         minY = this->points->at(0)->transform(this->scaleFactor, this->rotation, this->anchor)->getY();
         maxY = minY;
+        minX = this->points->at(0)->transform(this->scaleFactor, this->rotation, this->anchor)->getY();
+        maxX = minX;
 
         for (int i = 0; i < nLines; i++) {
             Coordinate* coor = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
@@ -277,6 +279,12 @@ public:
                 minY = coor->getY();
             }else if (coor->getY() > maxY){
                 maxY = coor->getY();
+            }
+
+            if (coor->getX() < minX){
+                minX = coor->getX();
+            }else if (coor->getX() > maxX){
+                maxX = coor->getX();
             }
 
             activeList[i] = false;
@@ -295,44 +303,54 @@ public:
                 } 
             }
 
-            Coordinate* c1;
-            Coordinate* c2;
+            Coordinate* coor;
             bool odd = false;
-            for (int i = 0; i < nLines; i++){
-                if(activeList[i]){
-                    Coordinate* coor = new Coordinate(EdgeTable[i].x, y - 1);
-                    color col1, col2, col3;
-                    col1 = framebuffer->lazyCheck(coor);
-                    coor->setX(coor->getX() + 1);
-                    col2 = framebuffer->lazyCheck(coor);
-                    coor->setX(coor->getX() - 2);
-                    col3 = framebuffer->lazyCheck(coor);
-                    delete coor;
-                    if(col1 == this->c || col2 == this->c || col3 == this->c){
-                        if(!odd){
-                            odd = true;
-                            c1 = new Coordinate(EdgeTable[i].x, y);
-                        }else{
-                            odd = false;
-                            c2 = new Coordinate(EdgeTable[i].x, y);
+            bool prev = false;
+            bool horizontal = false;
+            int iterateX = minX;
+            while (iterateX < maxX){
+                coor = new Coordinate(iterateX, y);
 
-                            Line* line = new Line(c1->getX(), c1->getY(), c2->getX(), c2->getY(), this->c, this->c);
-                            line->draw(framebuffer);
-                            delete c1;
-                            delete c2;
-                            delete line;
-                        }
+                color col1u, col2u, col3u, col1b, col2b, col3b;
+                Coordinate* coorCheck = new Coordinate(iterateX, y + 1);
+                col1u = framebuffer->lazyCheck(coorCheck);
+                coorCheck->setX(coorCheck->getX() + 1);
+                col2u = framebuffer->lazyCheck(coorCheck);
+                coorCheck->setX(coorCheck->getX() - 2);
+                col3u = framebuffer->lazyCheck(coorCheck);
 
-                        if(EdgeTable[i].dX != 0){
-                            EdgeTable[i].sum += EdgeTable[i].dX;
-                        }
+                delete coorCheck;
 
-                        while(EdgeTable[i].sum >= EdgeTable[i].dY){
-                            EdgeTable[i].x += EdgeTable[i].sign;
-                            EdgeTable[i].sum -= EdgeTable[i].dY;
+                coorCheck = new Coordinate(iterateX, y - 1);
+                col1b = framebuffer->lazyCheck(coorCheck);
+                coorCheck->setX(coorCheck->getX() + 1);
+                col2b = framebuffer->lazyCheck(coorCheck);
+                coorCheck->setX(coorCheck->getX() - 2);
+                col3b = framebuffer->lazyCheck(coorCheck);                    
+
+                if(framebuffer->lazyCheck(coor) == c){
+                    if((col1u == this->c || col2u == this->c || col3u == this->c) && (col1b == this->c || col2b == this->c || col3b == this->c)){
+                        if(!horizontal){
+                            if(prev){
+                                horizontal = true;
+                                odd = !odd;
+                            }else{
+                                odd = !odd;
+                                prev = true;
+                            }
                         }
                     }
+                }else{
+                    prev = false;
+                    horizontal = false;
                 }
+
+                if (odd){
+                    framebuffer->lazyDraw(coor, this->c);
+                }
+
+                iterateX++;
+                delete coor;
             }
         }
 
