@@ -15,11 +15,13 @@
 #include "color.hpp"
 #include "exception.hpp"
 #include "coordinate.hpp"
+#include "modelbuffer.hpp"
 
 class FrameBuffer {
 private:
     color* fbp;
     color* lazy;
+    const color clearcolor = CBLACK;
     struct fb_var_screeninfo vinfo;
     struct fb_fix_screeninfo finfo;
     long int screensize;

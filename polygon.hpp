@@ -179,6 +179,9 @@ public:
     void draw(FrameBuffer* framebuffer) {
         int nLines = this->points->size();
 
+        //make a local buffer
+        
+
         for (int i = 0; i < this->points->size(); i++) {
             Coordinate* c1 = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
             Coordinate* c2 = this->points->at((i + 1) % nLines)->transform(this->scaleFactor, this->rotation, this->anchor);
@@ -337,6 +340,11 @@ public:
         }
 
     }
+
+    // void otherfill() {
+    //     std::pair<Coordinate*, Coordinate*> box = this->getBoundingBox();
+    //     Coordinate* iterCoor
+    // }
 };
 
 #endif

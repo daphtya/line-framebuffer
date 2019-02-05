@@ -130,7 +130,7 @@ int main(int argc, char **args) {
     player->scale(4);
     objects->push_back(player);
 
-    Animated* enemy = new Animated("images/ufo.point", CMAGENTA, ENEMY_OBJ, true, 5, 0, 0);
+    Animated* enemy = new Animated("images/ufopolos.point", CMAGENTA, ENEMY_OBJ, true, 5, 0, 0);
     for (int i = 0; i < 10; i++) {
         int x = rand() % (framebuffer->getXRes() * 8 / 10) + (framebuffer->getXRes() / 10);
         int y = rand() % (framebuffer->getXRes() * 3 / 10) + (framebuffer->getXRes() / 10);
