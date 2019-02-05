@@ -264,6 +264,7 @@ public:
     }
 
     void fill(FrameBuffer* framebuffer) {
+        std::vector<Coordinate*> dots;
         this->createEdges();
         int minY, maxY, minX, maxX;
         int nLines = this->points->size();
@@ -305,8 +306,9 @@ public:
 
             Coordinate* coor;
             bool odd = false;
-            bool prev = false;
-            bool horizontal = false;
+            bool oneline = false;
+            bool top = false;
+            bool bot = false;
             int iterateX = minX;
             while (iterateX < maxX){
                 coor = new Coordinate(iterateX, y);
@@ -326,34 +328,38 @@ public:
                 coorCheck->setX(coorCheck->getX() + 1);
                 col2b = framebuffer->lazyCheck(coorCheck);
                 coorCheck->setX(coorCheck->getX() - 2);
-                col3b = framebuffer->lazyCheck(coorCheck);                    
+                col3b = framebuffer->lazyCheck(coorCheck);                   
 
                 if(framebuffer->lazyCheck(coor) == c){
-                    if((col1u == this->c || col2u == this->c || col3u == this->c) && (col1b == this->c || col2b == this->c || col3b == this->c)){
-                        if(!horizontal){
-                            if(prev){
-                                horizontal = true;
-                                odd = !odd;
-                            }else{
-                                odd = !odd;
-                                prev = true;
-                            }
-                        }
+                    if(col1u == this->c || col2u == this->c || col3u == this->c){
+                        top = true;
+                    }
+                    if(col1b == this->c || col2b == this->c || col3b == this->c){
+                        bot = true;
+                    }
+
+                    if(top && bot && !oneline){
+                        odd = !odd;
+                        oneline = true;
                     }
                 }else{
-                    prev = false;
-                    horizontal = false;
+                    top = false;
+                    bot = false;
+                    oneline = false;
                 }
 
                 if (odd){
-                    framebuffer->lazyDraw(coor, this->c);
+                    dots.push_back(coor);
                 }
 
                 iterateX++;
-                delete coor;
             }
         }
+        for (std::vector<Coordinate*>::iterator dot = dots.begin() ; dot != dots.end(); ++dot){
+            framebuffer->lazyDraw(*dot, this->c);
+        }
 
+        std::vector<Coordinate*>().swap(dots);
     }
 };
 
