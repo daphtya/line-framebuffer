@@ -13,6 +13,7 @@
 #include "line.hpp"
 #include "fillable.hpp"
 #include "edgebucket.hpp"
+#include "modelbuffer.hpp"
 
 #define NULL_OBJ 1
 #define PLAYER_OBJ 2
@@ -365,10 +366,103 @@ public:
         std::vector<Coordinate*>().swap(dots);
     }
 
-    // void otherfill() {
-    //     std::pair<Coordinate*, Coordinate*> box = this->getBoundingBox();
-    //     Coordinate* iterCoor
-    // }
+    void fill(FrameBuffer *fb, color c) {
+        std::pair<Coordinate*, Coordinate*>* box = this->getBoundingBox();
+        int ystart =  (box->first->getY()+box->second->getY())/2;
+        bool edge = false;
+        Coordinate* coor = new Coordinate(box->first->getX(), ystart);
+        for (int x = box->first->getX(); x < box->second->getX(); x++) {
+            coor->setX(x);
+            if (fb->lazyCheck(coor) != 0) {
+                edge = true;
+            } else {
+                if (edge) {
+                    floodfill(fb, coor, c);
+                }
+            }
+        }
+    }
+
+    bool isAnomaly(FrameBuffer* fb, Coordinate* coor) {
+        Coordinate* checker = new Coordinate(coor->getX()-1, coor->getY()+1);
+        color col1, col2, col3;
+        color col4, col5, col6;
+        col1 = fb->lazyCheck(checker); checker->setX(checker->getX()+1);
+        col2 = fb->lazyCheck(checker); checker->setX(checker->getX()+1);
+        col3 = fb->lazyCheck(checker); checker->setY(checker->getY()-2);
+        col4 = fb->lazyCheck(checker); checker->setX(checker->getX()-1);
+        col5 = fb->lazyCheck(checker); checker->setX(checker->getX()-1);
+        col6 = fb->lazyCheck(checker);
+        delete checker;
+        return (col1 == 0 && col2 == 0 && col3 == 0) || (col4 == 0 && col5 == 0 && col6 == 0);
+    }
+
+    void floodfill(FrameBuffer* fb, Coordinate* coor, color c) {
+        if (fb->lazyCheck(coor) != 0) {
+            return;
+        } else {
+            fb->lazyDraw(coor, c);
+            coor->setX(coor->getX()+1);
+            floodfill(fb, coor, c);
+
+            coor->setX(coor->getX()-2);
+            floodfill(fb, coor, c);
+
+            coor->setX(coor->getX()+1);
+            coor->setY(coor->getY()+1);
+            floodfill(fb, coor, c);
+
+            coor->setY(coor->getY()-2);
+            floodfill(fb, coor, c);
+
+            coor->setY(coor->getY()+1);
+        }
+    }
+
+    void draw_filled(FrameBuffer* fb, color c) {
+        std::pair<Coordinate*, Coordinate*>* box = this->getBoundingBox();
+        int minX = box->first->getX();
+        int maxX = box->second->getX();
+        int minY = box->first->getY();
+        int maxY = box->second->getY();
+        ModelBuffer* mb = new ModelBuffer( maxX - minX + 2, maxY - minY + 2, minX - 1, minY -1);
+        //draw the lines
+        this->draw(mb);
+
+        bool coloring = false;
+        bool onEdge = false;
+        //fill the lines
+        for (int j = minY; j < maxY+1; j++) {
+            for (int i = minX; i < maxX+1; i++) {
+                Coordinate* coor = new Coordinate(i, j);
+                color curr = mb->lazyCheck(coor);
+                if (curr != 0) {
+                    onEdge = true;
+                    if (!isAnomaly(mb, coor)) {
+                        coloring = coloring == false; // technically xor
+                    }
+                } else {
+                    if (onEdge) { // i give up
+                        onEdge = false;
+                        floodfill(mb, coor, c);
+                        mb->putInto(fb);
+                        delete coor;
+                        delete mb;
+                        delete box;
+                        return; 
+                    }
+                }
+                delete coor;
+            }
+        }
+
+        // put to framebuffer
+        mb->putInto(fb);
+        delete mb;
+        delete box;
+    }
+
+    
 };
 
 #endif

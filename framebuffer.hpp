@@ -15,7 +15,6 @@
 #include "color.hpp"
 #include "exception.hpp"
 #include "coordinate.hpp"
-#include "modelbuffer.hpp"
 
 class FrameBuffer {
 private:
@@ -69,7 +68,7 @@ public:
     unsigned int getXLength() const { return this->vinfo.bits_per_pixel; }
     unsigned int getYLength() const { return this->finfo.line_length; }
 
-    void lazyDraw(Coordinate* coordinate, color c) {
+    virtual void lazyDraw(Coordinate* coordinate, color c) {
         int x = coordinate->getX();
         int y = coordinate->getY();
         if (y >= 0 && y < this->getYRes()) {
@@ -80,7 +79,7 @@ public:
         }
     }
 
-    color lazyCheck(Coordinate* coordinate) {
+    virtual color lazyCheck(Coordinate* coordinate) {
         int x = coordinate->getX();
         int y = coordinate->getY();
         if (y >= 0 && y < this->getYRes()) {
@@ -90,6 +89,7 @@ public:
             }
         }
     }
+
 
     void clearScreen() {
         memset(this->lazy, 0, this->screensize);
