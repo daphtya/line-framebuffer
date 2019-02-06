@@ -13,7 +13,6 @@
 #include "framebuffer.hpp"
 #include "line.hpp"
 #include "polygon.hpp"
-#include "physical.hpp"
 
 #define PI acos(-1)
 
@@ -24,33 +23,52 @@
 #define COMMAND_MOVE_RIGHT 'd'
 #define COMMAND_SHOOT 'w'
 
-void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) {
+void readInput(FrameBuffer *framebuffer, std::vector<Drawable *> *objects, bool *run)
+{
     initscr();
     timeout(-1);
-    while (*run) {
+    while (*run)
+    {
         char c = getch();
-        if (c == COMMAND_QUIT) {
+        if (c == COMMAND_QUIT)
+        {
             *run = false;
-        } else if (c == COMMAND_ROTATE_LEFT) {
-            Polygon* player = (Polygon*) objects->at(0);
-            if (player->getRotation() > -1.2) { player->rotate(-0.2); }
-        } else if (c == COMMAND_ROTATE_RIGHT) {
-            Polygon* player = (Polygon*) objects->at(0);
-            if (player->getRotation() < 1.2) { player->rotate(0.2); }
-        } else if (c == COMMAND_MOVE_LEFT) {
-            Polygon* player = (Polygon*) objects->at(0);
+        }
+        else if (c == COMMAND_ROTATE_LEFT)
+        {
+            Polygon *player = (Polygon *)objects->at(0);
+            if (player->getRotation() > -1.2)
+            {
+                player->rotate(-0.2);
+            }
+        }
+        else if (c == COMMAND_ROTATE_RIGHT)
+        {
+            Polygon *player = (Polygon *)objects->at(0);
+            if (player->getRotation() < 1.2)
+            {
+                player->rotate(0.2);
+            }
+        }
+        else if (c == COMMAND_MOVE_LEFT)
+        {
+            Polygon *player = (Polygon *)objects->at(0);
             player->move(-3, 0);
-        } else if (c == COMMAND_MOVE_RIGHT) {
-            Polygon* player = (Polygon*) objects->at(0);
+        }
+        else if (c == COMMAND_MOVE_RIGHT)
+        {
+            Polygon *player = (Polygon *)objects->at(0);
             player->move(3, 0);
-        } else if (c == COMMAND_SHOOT) {
-            Polygon* player = (Polygon*) objects->at(0);
-            Coordinate* anchor = player->getAnchor();
+        }
+        else if (c == COMMAND_SHOOT)
+        {
+            Polygon *player = (Polygon *)objects->at(0);
+            Coordinate *anchor = player->getAnchor();
             int toX = anchor->getX() + 1000 * tan(player->getRotation());
             int fromX = anchor->getX() - 40 * cos(PI / 2 + player->getRotation());
             int fromY = anchor->getY() - 40 * sin(PI / 2 + player->getRotation());
 
-            Animated* laser = new Animated("images/laser.point", CRED, LASER_OBJ, false, 5, 0.1, 0.5);
+            Animated *laser = new Animated("images/laser.point", CRED, LASER_OBJ, false, 5, 0.1, 0.5);
             laser->addAnchorKeyframe(new Coordinate(fromX, fromY));
             laser->addAnchorKeyframe(new Coordinate(toX, anchor->getY() - 1000));
             laser->addScaleKeyframe(1);
@@ -64,26 +82,32 @@ void readInput(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* 
     endwin();
 }
 
-void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) {
-    Animated* enemy = (Animated*) objects->at(1);
+void draw(FrameBuffer *framebuffer, std::vector<Drawable *> *objects, bool *run)
+{
+    Animated *enemy = (Animated *)objects->at(1);
     bool hit = false;
 
-    while (*run) {
+    while (*run)
+    {
         framebuffer->clearScreen();
 
-        for (int i = 0; i < objects->size(); i++) {
+        for (int i = 0; i < objects->size(); i++)
+        {
             objects->at(i)->draw(framebuffer);
             if (objects->at(i)->getId() != ENEMY_OBJ || !hit)
                 objects->at(i)->animate();
-            if (objects->at(i)->getId() == LASER_OBJ && !hit) {
-                Animated* laser = (Animated*) objects->at(i);
+            if (objects->at(i)->getId() == LASER_OBJ && !hit)
+            {
+                Animated *laser = (Animated *)objects->at(i);
                 int dx = abs(laser->getAnchor()->getX() - enemy->getAnchor()->getX());
                 int dy = abs(laser->getAnchor()->getY() - enemy->getAnchor()->getY());
-                if (dx * dx + dy * dy <= 2500) {
+                if (dx * dx + dy * dy <= 2500)
+                {
                     hit = true;
-                    Animated* explosion = new Animated("images/explosion.point", CYELLOW, EXPLOSION_OBJ, false, 0, 0.5, 0.05);
+                    Animated *explosion = new Animated("images/explosion.point", CYELLOW, EXPLOSION_OBJ, false, 0, 0.5, 0.05);
                     explosion->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX(), enemy->getAnchor()->getY()));
-                    for (int i = 0; i < 8; i++) {
+                    for (int i = 0; i < 8; i++)
+                    {
                         explosion->addScaleKeyframe(2);
                         explosion->addScaleKeyframe(10);
                     }
@@ -92,19 +116,19 @@ void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) 
 
                     objects->push_back(explosion);
                     enemy->hide();
-                    
-                    Physical* wreck1 = new Physical("images/ufofragL.point", CMAGENTA, PHYSICAL_OBJ, -10, -10, 10);
-                    wreck1->scale(4);
-                    wreck1->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX(), enemy->getAnchor()->getY()));
-                    wreck1->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX()-5, enemy->getAnchor()->getY()-10));
-                    
-                    Physical* wreck2 = new Physical("images/ufofragR.point", CMAGENTA, PHYSICAL_OBJ, 10, -10, 10);
-                    wreck2->scale(4);
-                    wreck2->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX(), enemy->getAnchor()->getY()));
-                    wreck2->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX()+5, enemy->getAnchor()->getY()-10));
-                    
-                    objects->push_back(wreck1);
-                    objects->push_back(wreck2);
+
+                    // Physical *wreck1 = new Physical("images/ufofragL.point", CMAGENTA, PHYSICAL_OBJ, -10, -10, 10);
+                    // wreck1->scale(4);
+                    // wreck1->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX(), enemy->getAnchor()->getY()));
+                    // wreck1->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX() - 5, enemy->getAnchor()->getY() - 10));
+
+                    // Physical *wreck2 = new Physical("images/ufofragR.point", CMAGENTA, PHYSICAL_OBJ, 10, -10, 10);
+                    // wreck2->scale(4);
+                    // wreck2->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX(), enemy->getAnchor()->getY()));
+                    // wreck2->addAnchorKeyframe(new Coordinate(enemy->getAnchor()->getX() + 5, enemy->getAnchor()->getY() - 10));
+
+                    // objects->push_back(wreck1);
+                    // objects->push_back(wreck2);
                 }
             }
         }
@@ -113,25 +137,30 @@ void draw(FrameBuffer* framebuffer, std::vector<Drawable*>* objects, bool* run) 
     }
 }
 
-int main(int argc, char **args) {
-    FrameBuffer* framebuffer;
-    try {
+int main(int argc, char **args)
+{
+    FrameBuffer *framebuffer;
+    try
+    {
         framebuffer = new FrameBuffer();
-    } catch (Exception e) {
+    }
+    catch (Exception e)
+    {
         e.print();
         return 1;
     }
 
     bool run = true;
-    std::vector<Drawable*>* objects = new std::vector<Drawable*>;
+    std::vector<Drawable *> *objects = new std::vector<Drawable *>;
 
-    Polygon* player = new Polygon("images/pesawat.point", CBLUE, PLAYER_OBJ);
+    Polygon *player = new Polygon("images/pesawat.point", CBLUE, PLAYER_OBJ);
     player->moveTo(framebuffer->getXRes() / 2, framebuffer->getYRes() - 80);
     player->scale(4);
     objects->push_back(player);
 
-    Animated* enemy = new Animated("images/ufopolos.point", CMAGENTA, ENEMY_OBJ, true, 5, 0, 0);
-    for (int i = 0; i < 10; i++) {
+    Animated *enemy = new Animated("images/ufopolos.point", CMAGENTA, ENEMY_OBJ, true, 5, 0, 0);
+    for (int i = 0; i < 10; i++)
+    {
         int x = rand() % (framebuffer->getXRes() * 8 / 10) + (framebuffer->getXRes() / 10);
         int y = rand() % (framebuffer->getXRes() * 3 / 10) + (framebuffer->getXRes() / 10);
         enemy->addAnchorKeyframe(new Coordinate(x, y));
@@ -139,8 +168,8 @@ int main(int argc, char **args) {
     enemy->scale(4);
     objects->push_back(enemy);
 
-    std::thread* t0 = new std::thread(readInput, framebuffer, objects, &run);
-    std::thread* t1 = new std::thread(draw, framebuffer, objects, &run);
+    std::thread *t0 = new std::thread(readInput, framebuffer, objects, &run);
+    std::thread *t1 = new std::thread(draw, framebuffer, objects, &run);
 
     t0->join();
     t1->join();
@@ -151,5 +180,5 @@ int main(int argc, char **args) {
     delete t1;
     delete framebuffer;
 
-	return 0;
+    return 0;
 }

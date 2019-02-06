@@ -11,8 +11,6 @@
 #include "drawable.hpp"
 #include "framebuffer.hpp"
 #include "line.hpp"
-#include "fillable.hpp"
-#include "edgebucket.hpp"
 #include "modelbuffer.hpp"
 
 #define NULL_OBJ 1
@@ -22,34 +20,43 @@
 #define EXPLOSION_OBJ 5
 #define PHYSICAL_OBJ 6
 
-class Polygon : public Drawable, Fillable {
-protected:
-    std::vector<Coordinate*>* points;
-    Coordinate* anchor;
+class Polygon : public Drawable
+{
+  protected:
+    std::vector<Coordinate *> *points;
+    Coordinate *anchor;
     color c;
     double scaleFactor;
     double rotation; // rad
-    char id; // polygon identifier
-    edgebucket* EdgeTable = NULL;
+    char id;         // polygon identifier
 
-public:
-    Polygon() {
-        this->points = new std::vector<Coordinate*>();
+  public:
+    Polygon()
+    {
+        this->points = new std::vector<Coordinate *>();
         this->c = CWHITE;
         this->scaleFactor = 1;
         this->rotation = 0;
         this->id = NULL_OBJ;
     }
 
-    Polygon(std::string filename, color c, char id) : Polygon() {
+    Polygon(std::string filename, color c, char id) : Polygon()
+    {
         std::ifstream f(filename);
         int x, y, minX, maxX, minY, maxY;
         bool first = true;
-        while (f >> x >> y) {
-            if (first) { minX = maxX = x; minY = maxY = y; }
+        while (f >> x >> y)
+        {
+            if (first)
+            {
+                minX = maxX = x;
+                minY = maxY = y;
+            }
             first = false;
-            minX = std::min(minX, x); maxX = std::max(maxX, x);
-            minY = std::min(minY, y); maxY = std::max(maxY, y);
+            minX = std::min(minX, x);
+            maxX = std::max(maxX, x);
+            minY = std::min(minY, y);
+            maxY = std::max(maxY, y);
             this->addPoint(new Coordinate(x, y));
         }
         f.close();
@@ -58,40 +65,50 @@ public:
         this->id = id;
     }
 
-    ~Polygon() {
-        for (int i = 0; i < this->points->size(); i++) {
+    ~Polygon()
+    {
+        for (int i = 0; i < this->points->size(); i++)
+        {
             delete this->points->at(i);
         }
         delete this->points;
         delete this->anchor;
     }
 
-    void moveWithoutAnchor(int dx, int dy) {
-        for (int i = 0;  i < this->points->size(); i++) {
+    void moveWithoutAnchor(int dx, int dy)
+    {
+        for (int i = 0; i < this->points->size(); i++)
+        {
             this->points->at(i)->move(dx, dy);
         }
     }
 
-    void addPoint(Coordinate* coordinate) {
+    void addPoint(Coordinate *coordinate)
+    {
         this->points->push_back(coordinate);
     }
 
-    Coordinate* getAnchor() const {
+    Coordinate *getAnchor() const
+    {
         return this->anchor;
     }
 
-    void move(int dx, int dy) {
-        for (int i = 0;  i < this->points->size(); i++) {
+    void move(int dx, int dy)
+    {
+        for (int i = 0; i < this->points->size(); i++)
+        {
             this->points->at(i)->move(dx, dy);
         }
         this->anchor->move(dx, dy);
     }
 
-    void moveTo(int x, int y, int maxVelocity = -1) {
+    void moveTo(int x, int y, int maxVelocity = -1)
+    {
         int dx = x - this->anchor->getX();
         int dy = y - this->anchor->getY();
         int dist2 = dx * dx + dy * dy;
-        if (maxVelocity >= 0 && dist2 > maxVelocity && (dx != 0 || dy != 0)) {
+        if (maxVelocity >= 0 && dist2 > maxVelocity && (dx != 0 || dy != 0))
+        {
             double factor = maxVelocity * 1.0 / sqrt(dist2);
             dx *= factor;
             dy *= factor;
@@ -99,60 +116,80 @@ public:
         this->move(dx, dy);
     }
 
-    void scale(double scaleFactor) {
+    void scale(double scaleFactor)
+    {
         this->scaleFactor *= scaleFactor;
     }
 
-    void scaleTo(double scaleFactor, double maxVelocity = 0) {
-        if (this->scaleFactor > scaleFactor) {
+    void scaleTo(double scaleFactor, double maxVelocity = 0)
+    {
+        if (this->scaleFactor > scaleFactor)
+        {
             this->scaleFactor = std::max(this->scaleFactor - maxVelocity, scaleFactor);
-        } else {
+        }
+        else
+        {
             this->scaleFactor = std::min(this->scaleFactor + maxVelocity, scaleFactor);
         }
     }
 
-    void rotate(double rotation) {
+    void rotate(double rotation)
+    {
         this->rotation += rotation;
     }
 
-    void rotateTo(double rotation, double maxVelocity = 0) {
-        if (this->rotation > rotation) {
+    void rotateTo(double rotation, double maxVelocity = 0)
+    {
+        if (this->rotation > rotation)
+        {
             this->rotation = std::max(this->rotation - maxVelocity, rotation);
-        } else {
+        }
+        else
+        {
             this->rotation = std::min(this->rotation + maxVelocity, rotation);
         }
     }
 
-    double getScaleFactor() const {
+    double getScaleFactor() const
+    {
         return this->scaleFactor;
     }
 
-    double getRotation() const {
+    double getRotation() const
+    {
         return this->rotation;
     }
 
-    char getId() const {
+    char getId() const
+    {
         return this->id;
     }
 
-    std::pair<Coordinate*, Coordinate*>* getBoundingBox() {
-        Coordinate* point = this->points->at(0)->transform(this->scaleFactor, this->rotation, this->anchor);
-        int minX = point->getX(); int maxX = minX;
-        int minY = point->getY(); int maxY = minY;
+    std::pair<Coordinate *, Coordinate *> *getBoundingBox()
+    {
+        Coordinate *point = this->points->at(0)->transform(this->scaleFactor, this->rotation, this->anchor);
+        int minX = point->getX();
+        int maxX = minX;
+        int minY = point->getY();
+        int maxY = minY;
         delete point;
-        for (int i = 1; i < this->points->size(); i++) {
+        for (int i = 1; i < this->points->size(); i++)
+        {
             point = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
             int x = point->getX();
             int y = point->getY();
-            minX = std::min(minX, x); maxX = std::max(maxX, x);
-            minY = std::min(minY, y); maxY = std::max(maxY, y);
+            minX = std::min(minX, x);
+            maxX = std::max(maxX, x);
+            minY = std::min(minY, y);
+            maxY = std::max(maxY, y);
             delete point;
         }
-        return new std::pair<Coordinate*, Coordinate*>(new Coordinate(minX, minY), new Coordinate(maxX, maxY));
+        return new std::pair<Coordinate *, Coordinate *>(new Coordinate(minX, minY), new Coordinate(maxX, maxY));
     }
 
-    Coordinate* getCenter() {
-        std::pair<Coordinate*, Coordinate*>* boundingBox = this->getBoundingBox();
+    Coordinate *getCenter()
+    {
+        std::pair<Coordinate *, Coordinate *> *boundingBox = this->getBoundingBox();
         int x = (boundingBox->first->getX() + boundingBox->second->getX()) / 2;
         int y = (boundingBox->first->getY() + boundingBox->second->getY()) / 2;
         delete boundingBox->first;
@@ -161,15 +198,16 @@ public:
         return new Coordinate(x, y);
     }
 
-    bool isOverlapping(std::pair<Coordinate*, Coordinate*>* otherBoundingBox) {
-        std::pair<Coordinate*, Coordinate*>* thisBoundingBox = this->getBoundingBox();
+    bool isOverlapping(std::pair<Coordinate *, Coordinate *> *otherBoundingBox)
+    {
+        std::pair<Coordinate *, Coordinate *> *thisBoundingBox = this->getBoundingBox();
         bool overlapX, overlapY;
 
         overlapX = otherBoundingBox->second->getX() >= thisBoundingBox->first->getX() &&
-            thisBoundingBox->second->getX() >= otherBoundingBox->first->getX();
+                   thisBoundingBox->second->getX() >= otherBoundingBox->first->getX();
 
         overlapY = otherBoundingBox->second->getY() >= thisBoundingBox->first->getY() &&
-            thisBoundingBox->second->getY() >= otherBoundingBox->first->getY();
+                   thisBoundingBox->second->getY() >= otherBoundingBox->first->getY();
 
         delete thisBoundingBox->first;
         delete thisBoundingBox->second;
@@ -177,292 +215,33 @@ public:
         return overlapX && overlapY;
     }
 
-    void draw(FrameBuffer* framebuffer) {
+    void draw(IFrameBuffer *framebuffer)
+    {
         int nLines = this->points->size();
 
-        //make a local buffer
-        
+        std::pair<Coordinate *, Coordinate *> *boundingBox = this->getBoundingBox();
+        int width = boundingBox->second->getX() - boundingBox->first->getX() + 2;
+        int height = boundingBox->second->getY() - boundingBox->first->getY() + 2;
 
-        for (int i = 0; i < this->points->size(); i++) {
-            Coordinate* c1 = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
-            Coordinate* c2 = this->points->at((i + 1) % nLines)->transform(this->scaleFactor, this->rotation, this->anchor);
-            Line* line = new Line(c1->getX(), c1->getY(), c2->getX(), c2->getY(), this->c, this->c);
-            line->draw(framebuffer);
+        ModelBuffer *modelBuffer = new ModelBuffer(width, height, boundingBox->first->getX(), boundingBox->first->getY());
+        modelBuffer->clearScreen();
+
+        for (int i = 0; i < nLines; i++)
+        {
+            Coordinate *c1 = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
+            Coordinate *c2 = this->points->at((i + 1) % nLines)->transform(this->scaleFactor, this->rotation, this->anchor);
+            Line *line = new Line(c1->getX(), c1->getY(), c2->getX(), c2->getY(), this->c, this->c);
+            line->draw(modelBuffer);
             delete c1;
             delete c2;
             delete line;
         }
 
-        fill(framebuffer);
+        FrameBuffer *realframebuffer = (FrameBuffer *)framebuffer;
+        modelBuffer->flush(realframebuffer);
+
+        delete modelBuffer;
     }
-
-    void createEdges(){
-        this->EdgeTable = new edgebucket[this->points->size()];
-        int nLines = this->points->size();
-
-        for (int i = 0; i < this->points->size(); i++) {
-            Coordinate* c1 = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
-            Coordinate* c2 = this->points->at((i + 1) % nLines)->transform(this->scaleFactor, this->rotation, this->anchor);
-            int dx = c2->getX() - c1->getX();
-            int dy = c2->getY() - c1->getY();
-
-            if(dy != 0){
-                int yMax, yMin, x, sign;
-                if (c1->getY() > c2->getY()){
-                    yMax = c1->getY();
-                    yMin = c2->getY();
-                    x = c1 ->getX();
-                }else{
-                    yMax = c2->getY();
-                    yMin = c1->getY();
-                    x = c1 ->getX();
-                }
-
-                
-
-                if(dx != 0){
-                    if(dy/dx > 0){
-                        sign = 1;
-                    }else{
-                        sign = -1;
-                    }
-                }else{
-                    sign = 0;
-                }
-
-                this->EdgeTable[i] = edgebucket(yMax, yMin, x, sign, abs(dx), abs(dy), 0);
-                //std::cout << "yMax " << yMax << " yMin " << yMin << " x " << x << " sign " << sign << " dx " << dx << " dy " << dy << std::endl;
-            }else{
-                this->EdgeTable[i] = edgebucket(0, 0, 0, 0, 0, 0, 0);
-            }
-
-
-            delete c1;
-            delete c2;
-        }
-    }
-
-    void sortEdges(){
-        //sorts edges by starting X;
-        int nLines = this->points->size();
-        edgebucket e;
-        int MinX;
-        int MinIndex;
-
-        for (int i = 0; i < nLines; i++){
-            MinIndex = i;
-            MinX = EdgeTable[i].x;
-            for(int j = i; j<nLines; j++){
-                if(EdgeTable[j].x < MinX){
-                    MinX = EdgeTable[j].x;
-                    MinIndex = j;
-                }
-            }
-
-            if (MinIndex != i){
-                e = EdgeTable[i];
-                EdgeTable[i] = EdgeTable[MinIndex];
-                EdgeTable[MinIndex] = e;
-            }
-        }
-    }
-
-    void fill(FrameBuffer* framebuffer) {
-        std::vector<Coordinate*> dots;
-        this->createEdges();
-        int minY, maxY, minX, maxX;
-        int nLines = this->points->size();
-        bool activeList[nLines];
-        minY = this->points->at(0)->transform(this->scaleFactor, this->rotation, this->anchor)->getY();
-        maxY = minY;
-        minX = this->points->at(0)->transform(this->scaleFactor, this->rotation, this->anchor)->getY();
-        maxX = minX;
-
-        for (int i = 0; i < nLines; i++) {
-            Coordinate* coor = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
-            if (coor->getY() < minY){
-                minY = coor->getY();
-            }else if (coor->getY() > maxY){
-                maxY = coor->getY();
-            }
-
-            if (coor->getX() < minX){
-                minX = coor->getX();
-            }else if (coor->getX() > maxX){
-                maxX = coor->getX();
-            }
-
-            activeList[i] = false;
-
-            delete coor;
-        }
-
-        for(int y = minY; y <= maxY; y++){
-            //Add and remove edge from active list
-            this->sortEdges();
-            for (int i = 0; i < nLines; i++){
-                if (EdgeTable[i].MaxY >= y){
-                    activeList[i] == false;
-                }else if(EdgeTable[i].MinY <= y){
-                    activeList[i] = true;
-                } 
-            }
-
-            Coordinate* coor;
-            bool odd = false;
-            bool oneline = false;
-            bool top = false;
-            bool bot = false;
-            int iterateX = minX;
-            while (iterateX < maxX){
-                coor = new Coordinate(iterateX, y);
-
-                color col1u, col2u, col3u, col1b, col2b, col3b;
-                Coordinate* coorCheck = new Coordinate(iterateX, y + 1);
-                col1u = framebuffer->lazyCheck(coorCheck);
-                coorCheck->setX(coorCheck->getX() + 1);
-                col2u = framebuffer->lazyCheck(coorCheck);
-                coorCheck->setX(coorCheck->getX() - 2);
-                col3u = framebuffer->lazyCheck(coorCheck);
-
-                delete coorCheck;
-
-                coorCheck = new Coordinate(iterateX, y - 1);
-                col1b = framebuffer->lazyCheck(coorCheck);
-                coorCheck->setX(coorCheck->getX() + 1);
-                col2b = framebuffer->lazyCheck(coorCheck);
-                coorCheck->setX(coorCheck->getX() - 2);
-                col3b = framebuffer->lazyCheck(coorCheck);                   
-
-                if(framebuffer->lazyCheck(coor) == c){
-                    if(col1u == this->c || col2u == this->c || col3u == this->c){
-                        top = true;
-                    }
-                    if(col1b == this->c || col2b == this->c || col3b == this->c){
-                        bot = true;
-                    }
-
-                    if(top && bot && !oneline){
-                        odd = !odd;
-                        oneline = true;
-                    }
-                }else{
-                    top = false;
-                    bot = false;
-                    oneline = false;
-                }
-
-                if (odd){
-                    dots.push_back(coor);
-                }
-
-                iterateX++;
-            }
-        }
-        for (std::vector<Coordinate*>::iterator dot = dots.begin() ; dot != dots.end(); ++dot){
-            framebuffer->lazyDraw(*dot, this->c);
-        }
-
-        std::vector<Coordinate*>().swap(dots);
-    }
-
-    void fill(FrameBuffer *fb, color c) {
-        std::pair<Coordinate*, Coordinate*>* box = this->getBoundingBox();
-        int ystart =  (box->first->getY()+box->second->getY())/2;
-        bool edge = false;
-        Coordinate* coor = new Coordinate(box->first->getX(), ystart);
-        for (int x = box->first->getX(); x < box->second->getX(); x++) {
-            coor->setX(x);
-            if (fb->lazyCheck(coor) != 0) {
-                edge = true;
-            } else {
-                if (edge) {
-                    floodfill(fb, coor, c);
-                }
-            }
-        }
-    }
-
-    bool isAnomaly(FrameBuffer* fb, Coordinate* coor) {
-        Coordinate* checker = new Coordinate(coor->getX()-1, coor->getY()+1);
-        color col1, col2, col3;
-        color col4, col5, col6;
-        col1 = fb->lazyCheck(checker); checker->setX(checker->getX()+1);
-        col2 = fb->lazyCheck(checker); checker->setX(checker->getX()+1);
-        col3 = fb->lazyCheck(checker); checker->setY(checker->getY()-2);
-        col4 = fb->lazyCheck(checker); checker->setX(checker->getX()-1);
-        col5 = fb->lazyCheck(checker); checker->setX(checker->getX()-1);
-        col6 = fb->lazyCheck(checker);
-        delete checker;
-        return (col1 == 0 && col2 == 0 && col3 == 0) || (col4 == 0 && col5 == 0 && col6 == 0);
-    }
-
-    void floodfill(FrameBuffer* fb, Coordinate* coor, color c) {
-        if (fb->lazyCheck(coor) != 0) {
-            return;
-        } else {
-            fb->lazyDraw(coor, c);
-            coor->setX(coor->getX()+1);
-            floodfill(fb, coor, c);
-
-            coor->setX(coor->getX()-2);
-            floodfill(fb, coor, c);
-
-            coor->setX(coor->getX()+1);
-            coor->setY(coor->getY()+1);
-            floodfill(fb, coor, c);
-
-            coor->setY(coor->getY()-2);
-            floodfill(fb, coor, c);
-
-            coor->setY(coor->getY()+1);
-        }
-    }
-
-    void draw_filled(FrameBuffer* fb, color c) {
-        std::pair<Coordinate*, Coordinate*>* box = this->getBoundingBox();
-        int minX = box->first->getX();
-        int maxX = box->second->getX();
-        int minY = box->first->getY();
-        int maxY = box->second->getY();
-        ModelBuffer* mb = new ModelBuffer( maxX - minX + 2, maxY - minY + 2, minX - 1, minY -1);
-        //draw the lines
-        this->draw(mb);
-
-        bool coloring = false;
-        bool onEdge = false;
-        //fill the lines
-        for (int j = minY; j < maxY+1; j++) {
-            for (int i = minX; i < maxX+1; i++) {
-                Coordinate* coor = new Coordinate(i, j);
-                color curr = mb->lazyCheck(coor);
-                if (curr != 0) {
-                    onEdge = true;
-                    if (!isAnomaly(mb, coor)) {
-                        coloring = coloring == false; // technically xor
-                    }
-                } else {
-                    if (onEdge) { // i give up
-                        onEdge = false;
-                        floodfill(mb, coor, c);
-                        mb->putInto(fb);
-                        delete coor;
-                        delete mb;
-                        delete box;
-                        return; 
-                    }
-                }
-                delete coor;
-            }
-        }
-
-        // put to framebuffer
-        mb->putInto(fb);
-        delete mb;
-        delete box;
-    }
-
-    
 };
 
 #endif

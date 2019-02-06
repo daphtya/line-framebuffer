@@ -8,68 +8,90 @@
 #include <stdio.h>
 #include <string.h>
 
-class ModelBuffer : public FrameBuffer {
-private:
-	color* buffer;
-	long int buffersize; 
-	int Xres, Yres;
-	int XShift, YShift;
-public:
-	ModelBuffer(int Xres, int Yres, int Xshift=0, int Yshift=0) {
-		this->Xres = Xres;
-		this->Yres = Yres;
-		this->XShift = Xshift;
-		this->YShift = Yshift;
-		buffersize = Xres * Yres;
-		buffer = new color[Xres*Yres];
-	}	
+class ModelBuffer : public IFrameBuffer
+{
+  private:
+	color **buffer;
+	long int buffersize;
+	int width, height;
+	int xOffset, yOffset;
 
-	~ModelBuffer() {
-		delete[] buffer;
+  public:
+	ModelBuffer(int width, int height, int xOffset, int yOffset)
+	{
+		this->width = width;
+		this->height = height;
+		this->xOffset = xOffset;
+		this->yOffset = yOffset;
+		this->buffersize = width * height;
+		this->buffer = new color *[height];
+		for (int i = 0; i < height; i++)
+		{
+			this->buffer[i] = new color[width];
+		}
 	}
 
-	int getXRes() const {return Xres;}
-	int getYRes() const {return Yres;}
-
-	void clearScreen() {
-		memset(this->buffer, 0, this->buffersize);
+	~ModelBuffer()
+	{
+		for (int i = 0; i < this->height; i++)
+		{
+			delete[] this->buffer[i];
+		}
+		delete[] this->buffer;
 	}
 
-	void lazyDraw(Coordinate* coordinate, color c) {
-        int x = coordinate->getX() - this->XShift;
-        int y = coordinate->getY() - this->YShift;
-        if (y >= 0 && y < this->getYRes()) {
-            if (x >= 0 && x < this->getXRes()) {
-                long int location = x + y * this->Xres;
-                this->buffer[location] = c;
-            }
-        }
-    }
+	int getWidth() const { return this->width; }
+	int getHeight() const { return this->height; }
 
-    color lazyCheck(Coordinate* coordinate) {
-        int x = coordinate->getX() - this->XShift;
-        int y = coordinate->getY() - this->YShift;
-        if (y >= 0 && y < this->getYRes()) {
-            if (x >= 0 && x < this->getXRes()) {
-                long int location = x + y * this->Xres;
-                return this->buffer[location];
-            }
-        }
-    }
+	void clearScreen()
+	{
+		for (int i = 0; i < this->height; i++)
+		{
+			memset(this->buffer[i], 0, this->width * sizeof(color));
+		}
+	}
 
-    void putInto(FrameBuffer* fb) {
-    	for (int j = 0; j < this->Yres; j++){
-    		long int location = j * this->Xres;
-    		for (int i = 0; i < this->Xres; i++) {
-    			if (this->buffer[location] != 0) { 				
-	    			Coordinate* coor = new Coordinate(this->XShift + i, this->YShift + j);
-	    			fb->lazyDraw(coor, this->buffer[location]);
-	    			delete coor;
-	    		}
-    			location++; 
-    		}
-    	}
-    }
+	void lazyDraw(Coordinate *coordinate, color c)
+	{
+		int x = coordinate->getX() - this->xOffset;
+		int y = coordinate->getY() - this->yOffset;
+		if (0 <= x && x < this->getWidth())
+		{
+			if (0 <= y && y < this->getHeight())
+			{
+				this->buffer[y][x] = c;
+			}
+		}
+	}
+
+	color lazyCheck(Coordinate *coordinate)
+	{
+		int x = coordinate->getX() - this->xOffset;
+		int y = coordinate->getY() - this->yOffset;
+		if (x >= 0 && x < this->getWidth())
+		{
+			if (y >= 0 && y < this->getHeight())
+			{
+				return this->buffer[y][x];
+			}
+		}
+	}
+
+	void flush(FrameBuffer *fb)
+	{
+		for (int i = 0; i < this->height; i++)
+		{
+			for (int j = 0; j < this->width; j++)
+			{
+				if (this->buffer[i][j] != 0)
+				{
+					Coordinate *coor = new Coordinate(this->xOffset + j, this->yOffset + i);
+					fb->lazyDraw(coor, this->buffer[i][j]);
+					delete coor;
+				}
+			}
+		}
+	}
 };
 
 #endif
