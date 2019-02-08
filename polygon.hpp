@@ -217,14 +217,48 @@ class Polygon : public Drawable
 
     void draw(IFrameBuffer *framebuffer)
     {
-        int nLines = this->points->size();
-
         std::pair<Coordinate *, Coordinate *> *boundingBox = this->getBoundingBox();
         int width = boundingBox->second->getX() - boundingBox->first->getX() + 2;
         int height = boundingBox->second->getY() - boundingBox->first->getY() + 2;
 
         ModelBuffer *modelBuffer = new ModelBuffer(width, height, boundingBox->first->getX(), boundingBox->first->getY());
         modelBuffer->clearScreen();
+
+        this->drawLines(modelBuffer);
+
+        Coordinate *current = new Coordinate(0, 0);
+        for (int y = 0; y < height; y++)
+        {
+            bool fill = false;
+            for (int x = 0; x < width; x++)
+            {
+                current->setX(x);
+                current->setX(y);
+                color cc = modelBuffer->lazyCheck(x, y);
+                if (cc == this->c)
+                {
+                    fill = !fill;
+                }
+                else
+                {
+                    if (fill)
+                    {
+                        modelBuffer->lazyDraw(current, this->c);
+                    }
+                }
+            }
+        }
+        delete current;
+
+        FrameBuffer *realframebuffer = (FrameBuffer *)framebuffer;
+        modelBuffer->flush(realframebuffer);
+
+        delete modelBuffer;
+    }
+
+    void drawLines(ModelBuffer *modelBuffer)
+    {
+        int nLines = this->points->size();
 
         for (int i = 0; i < nLines; i++)
         {
@@ -236,11 +270,6 @@ class Polygon : public Drawable
             delete c2;
             delete line;
         }
-
-        FrameBuffer *realframebuffer = (FrameBuffer *)framebuffer;
-        modelBuffer->flush(realframebuffer);
-
-        delete modelBuffer;
     }
 };
 

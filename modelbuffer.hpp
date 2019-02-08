@@ -64,10 +64,8 @@ class ModelBuffer : public IFrameBuffer
 		}
 	}
 
-	color lazyCheck(Coordinate *coordinate)
+	color lazyCheck(int x, int y)
 	{
-		int x = coordinate->getX() - this->xOffset;
-		int y = coordinate->getY() - this->yOffset;
 		if (x >= 0 && x < this->getWidth())
 		{
 			if (y >= 0 && y < this->getHeight())
