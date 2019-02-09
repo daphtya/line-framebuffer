@@ -159,7 +159,6 @@ class Animated : public Polygon
         if (!this->hidden)
         {
             Polygon::draw(framebuffer);
-            //Polygon::draw_filled(framebuffer, this->c);
         }
     }
 };

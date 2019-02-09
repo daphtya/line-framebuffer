@@ -75,7 +75,29 @@ class ModelBuffer : public IFrameBuffer
 		}
 	}
 
-	void flush(FrameBuffer *fb)
+	void floodfill(color c, Coordinate* start = NULL) {
+		if (start == NULL) {
+			floodrec(this->height/2, this->width/2, c);
+		} else {
+			floodrec(start->getY(), start->getX(), c);
+		}
+
+
+	}
+
+	void floodrec(int i, int j, color c) {
+		this->buffer[i][j] = c;
+		if (i > 0 && this->buffer[i-1][j] == 0)
+			floodrec(i-1, j, c);
+		if (i < this->height-1 && this->buffer[i+1][j] == 0)
+			floodrec(i+1, j, c);
+		if (j > 0 && this->buffer[i][j-1] == 0)
+			floodrec(i, j-1, c);
+		if (j < this->width-1 && this->buffer[i][j+1] == 0)
+			floodrec(i, j+1, c); 
+	}
+
+	void flush(FrameBuffer *fb, int zAxis = 1)
 	{
 		for (int i = 0; i < this->height; i++)
 		{
@@ -84,7 +106,7 @@ class ModelBuffer : public IFrameBuffer
 				if (this->buffer[i][j] != 0)
 				{
 					Coordinate *coor = new Coordinate(this->xOffset + j, this->yOffset + i);
-					fb->lazyDraw(coor, this->buffer[i][j]);
+					fb->priorityDraw(coor, this->buffer[i][j], zAxis);
 					delete coor;
 				}
 			}

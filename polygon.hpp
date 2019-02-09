@@ -29,6 +29,7 @@ class Polygon : public Drawable
     double scaleFactor;
     double rotation; // rad
     char id;         // polygon identifier
+    int zAxis;
 
   public:
     Polygon()
@@ -38,10 +39,12 @@ class Polygon : public Drawable
         this->scaleFactor = 1;
         this->rotation = 0;
         this->id = NULL_OBJ;
+        this->zAxis = 0;
     }
 
-    Polygon(std::string filename, color c, char id) : Polygon()
+    Polygon(std::string filename, color c, char id, int zAxis = 0) : Polygon()
     {
+        this->zAxis = zAxis;
         std::ifstream f(filename);
         int x, y, minX, maxX, minY, maxY;
         bool first = true;
@@ -93,6 +96,10 @@ class Polygon : public Drawable
         return this->anchor;
     }
 
+    int getZAxis() {
+        return this->zAxis;
+    }
+    
     void move(int dx, int dy)
     {
         for (int i = 0; i < this->points->size(); i++)
@@ -225,33 +232,33 @@ class Polygon : public Drawable
         modelBuffer->clearScreen();
 
         this->drawLines(modelBuffer);
-
-        Coordinate *current = new Coordinate(0, 0);
-        for (int y = 0; y < height; y++)
-        {
-            bool fill = false;
-            for (int x = 0; x < width; x++)
-            {
-                current->setX(x);
-                current->setX(y);
-                color cc = modelBuffer->lazyCheck(x, y);
-                if (cc == this->c)
-                {
-                    fill = !fill;
-                }
-                else
-                {
-                    if (fill)
-                    {
-                        modelBuffer->lazyDraw(current, this->c);
-                    }
-                }
-            }
-        }
-        delete current;
+        modelBuffer->floodfill(this->c);
+        // Coordinate *current = new Coordinate(0, 0);
+        // for (int y = 0; y < height; y++)
+        // {
+        //     bool fill = false;
+        //     for (int x = 0; x < width; x++)
+        //     {
+        //         current->setX(x);
+        //         current->setX(y);
+        //         color cc = modelBuffer->lazyCheck(x, y);
+        //         if (cc == this->c)
+        //         {
+        //             fill = !fill;
+        //         }
+        //         else
+        //         {
+        //             if (fill)
+        //             {
+        //                 modelBuffer->lazyDraw(current, this->c);
+        //             }
+        //         }
+        //     }
+        // }
+        // delete current;
 
         FrameBuffer *realframebuffer = (FrameBuffer *)framebuffer;
-        modelBuffer->flush(realframebuffer);
+        modelBuffer->flush(realframebuffer, this->zAxis);
 
         delete modelBuffer;
     }
