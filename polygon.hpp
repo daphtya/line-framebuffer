@@ -283,11 +283,12 @@ class Polygon : public Drawable
                 }
             }
         }
-        if (this->id == EXPLOSION_OBJ) // turn on this to debug
-        {
-            oriModelBuffer->debug();
-            exit(0);
-        }
+        // if (this->id == PLAYER_OBJ) // turn on this to debug
+        // {
+        //     oriModelBuffer->debug();
+        //     modelBuffer->debug();
+        //     exit(0);
+        // }
 
         FrameBuffer *realframebuffer = (FrameBuffer *)framebuffer;
         modelBuffer->flush(realframebuffer, this->zAxis);
