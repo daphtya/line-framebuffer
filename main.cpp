@@ -7,7 +7,6 @@
 #include <time.h>
 
 #include "utils.hpp"
-
 #include "animated.hpp"
 #include "drawable.hpp"
 #include "framebuffer.hpp"
@@ -140,6 +139,7 @@ void draw(FrameBuffer *framebuffer, std::vector<Drawable *> *objects, bool *run)
 
 int main(int argc, char **args)
 {
+    flogclear();
     FrameBuffer *framebuffer;
     try
     {
