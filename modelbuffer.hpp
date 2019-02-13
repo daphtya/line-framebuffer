@@ -64,8 +64,23 @@ class ModelBuffer : public IFrameBuffer
 		}
 	}
 
+	void lazyDraw(int x, int y, color c)
+	{
+		x -= this->xOffset;
+		y -= this->yOffset;
+		if (0 <= x && x < this->getWidth())
+		{
+			if (0 <= y && y < this->getHeight())
+			{
+				this->buffer[y][x] = c;
+			}
+		}
+	}
+
 	color lazyCheck(int x, int y)
 	{
+		x -= this->xOffset;
+		y -= this->yOffset;
 		if (x >= 0 && x < this->getWidth())
 		{
 			if (y >= 0 && y < this->getHeight())
@@ -73,28 +88,7 @@ class ModelBuffer : public IFrameBuffer
 				return this->buffer[y][x];
 			}
 		}
-	}
-
-	void floodfill(color c, Coordinate* start = NULL) {
-		if (start == NULL) {
-			floodrec(this->height/2, this->width/2, c);
-		} else {
-			floodrec(start->getY(), start->getX(), c);
-		}
-
-
-	}
-
-	void floodrec(int i, int j, color c) {
-		this->buffer[i][j] = c;
-		if (i > 0 && this->buffer[i-1][j] == 0)
-			floodrec(i-1, j, c);
-		if (i < this->height-1 && this->buffer[i+1][j] == 0)
-			floodrec(i+1, j, c);
-		if (j > 0 && this->buffer[i][j-1] == 0)
-			floodrec(i, j-1, c);
-		if (j < this->width-1 && this->buffer[i][j+1] == 0)
-			floodrec(i, j+1, c); 
+		return CBLACK;
 	}
 
 	void flush(FrameBuffer *fb, int zAxis = 1)
@@ -110,6 +104,18 @@ class ModelBuffer : public IFrameBuffer
 					delete coor;
 				}
 			}
+		}
+	}
+
+	void debug()
+	{
+		for (int y = 0; y < height; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				flogcolor(this->buffer[y][x]);
+			}
+			flog("-");
 		}
 	}
 };

@@ -100,15 +100,17 @@ class Polygon : public Drawable
         return this->anchor;
     }
 
-    int getZAxis() {
+    int getZAxis()
+    {
         return this->zAxis;
     }
+
 
     void setFillCoor(int x, int y){
         this->xfill = x;
         this->yfill = y;
     }
-    
+
     void move(int dx, int dy)
     {
         for (int i = 0; i < this->points->size(); i++)
@@ -234,8 +236,12 @@ class Polygon : public Drawable
     void draw(IFrameBuffer *framebuffer)
     {
         std::pair<Coordinate *, Coordinate *> *boundingBox = this->getBoundingBox();
-        int width = boundingBox->second->getX() - boundingBox->first->getX() + 2;
-        int height = boundingBox->second->getY() - boundingBox->first->getY() + 2;
+        int width = boundingBox->second->getX() - boundingBox->first->getX() + 1;
+        int height = boundingBox->second->getY() - boundingBox->first->getY() + 1;
+
+        ModelBuffer *oriModelBuffer = new ModelBuffer(width, height, boundingBox->first->getX(), boundingBox->first->getY());
+        oriModelBuffer->clearScreen();
+        this->drawLines(oriModelBuffer);
 
         ModelBuffer *modelBuffer = new ModelBuffer(width, height, boundingBox->first->getX(), boundingBox->first->getY());
         modelBuffer->clearScreen();
@@ -248,32 +254,65 @@ class Polygon : public Drawable
         }
         // Coordinate *current = new Coordinate(0, 0);
         // for (int y = 0; y < height; y++)
+        /**
+         * Things to consider:
+         * .....#..
+         * ...##... line with gradient < 1
+         * ..#..... solved.
+         *
+         * ..#.....
+         * ..##.... sharp line
+         * ..#.#... not solved yet.
+         * ..#..#..
+         */
+
+        // for (int y = boundingBox->first->getY(); y < boundingBox->second->getY(); y++)
         // {
         //     bool fill = false;
-        //     for (int x = 0; x < width; x++)
+
+        //     for (int x = boundingBox->first->getX(); x < boundingBox->second->getX(); x++)
         //     {
-        //         current->setX(x);
-        //         current->setX(y);
-        //         color cc = modelBuffer->lazyCheck(x, y);
-        //         if (cc == this->c)
+        //         if (oriModelBuffer->lazyCheck(x, y) != CBLACK)
         //         {
-        //             fill = !fill;
-        //         }
-        //         else
-        //         {
-        //             if (fill)
+        //             bool topIsFilled = oriModelBuffer->lazyCheck(x - 1, y - 1) != CBLACK;
+        //             bool bottomIsFilled = oriModelBuffer->lazyCheck(x - 1, y + 1) != CBLACK;
+
+        //             topIsFilled |= oriModelBuffer->lazyCheck(x, y - 1) != CBLACK;
+        //             bottomIsFilled |= oriModelBuffer->lazyCheck(x, y + 1) != CBLACK;
+
+        //             while (oriModelBuffer->lazyCheck(x + 1, y) != CBLACK)
         //             {
-        //                 modelBuffer->lazyDraw(current, this->c);
+        //                 x++;
+        //                 topIsFilled |= oriModelBuffer->lazyCheck(x, y - 1) != CBLACK;
+        //                 bottomIsFilled |= oriModelBuffer->lazyCheck(x, y + 1) != CBLACK;
         //             }
+
+        //             topIsFilled |= oriModelBuffer->lazyCheck(x + 1, y - 1) != CBLACK;
+        //             bottomIsFilled |= oriModelBuffer->lazyCheck(x + 1, y + 1) != CBLACK;
+
+        //             if (topIsFilled && bottomIsFilled)
+        //             {
+        //                 fill = !fill;
+        //             }
+        //         }
+        //         if (fill)
+        //         {
+        //             modelBuffer->lazyDraw(x, y, this->c);
         //         }
         //     }
         // }
-        // delete current;
+        // if (this->id == PLAYER_OBJ) // turn on this to debug
+        // {
+        //     oriModelBuffer->debug();
+        //     modelBuffer->debug();
+        //     exit(0);
+        // }
 
         FrameBuffer *realframebuffer = (FrameBuffer *)framebuffer;
         modelBuffer->flush(realframebuffer, this->zAxis);
 
         delete modelBuffer;
+        delete oriModelBuffer;
     }
 
     void drawLines(ModelBuffer *modelBuffer)

@@ -108,10 +108,12 @@ class FrameBuffer : public IFrameBuffer
         }
     }
 
-    void priorityDraw(Coordinate *coordinate, color c, int priority) {
+    void priorityDraw(Coordinate *coordinate, color c, int priority)
+    {
         //main idea: priority is put in the unused byte of color (unsigned int is 4 bytes while RGB chars uses 3 bytes)
         int currPriority = this->lazyCheck(coordinate) >> 24;
-        if (currPriority <= priority) {
+        if (currPriority <= priority)
+        {
             c += priority << 24;
             this->lazyDraw(coordinate, c);
         }
