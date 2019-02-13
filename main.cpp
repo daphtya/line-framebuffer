@@ -137,14 +137,14 @@ void draw(FrameBuffer *framebuffer, std::vector<Drawable *> *objects, bool *run)
     {
         framebuffer->clearScreen();
 
-        if (hit && (double)(clock()-enemyrespawn)/CLOCKS_PER_SEC > 3) {
+        if (hit && (double)(clock()-enemyrespawn)/CLOCKS_PER_SEC > 2) {
 
             enemy = createPlane(framebuffer);
             (*objects)[1] = enemy;
             hit = false;
         }
         //printf("%lf \n", (double)(clock()-begin)/CLOCKS_PER_SEC);
-        if (!hit && (double)(clock()-begin)/CLOCKS_PER_SEC > 2) {
+        if (!hit && (double)(clock()-begin)/CLOCKS_PER_SEC > 1) {
             begin = clock();
             printf("dropping bombs\n");
             bombs->push_back(createBomb(framebuffer, enemy->getAnchor()));
