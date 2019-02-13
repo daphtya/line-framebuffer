@@ -29,8 +29,8 @@ public:
 			 bool bounce = true,
 			 bool gravity = true,
              double maxScaleVelocity = 0,
-             double maxRotationVelocity = 0) :
-	Animated(filename, c, id, false, pythagoreanApprox(horizonVelocity, verticalVelocity), maxScaleVelocity, maxRotationVelocity) {
+             double maxRotationVelocity = 0, int zAxis = 0) :
+	Animated(filename, c, id, false, pythagoreanApprox(horizonVelocity, verticalVelocity), maxScaleVelocity, maxRotationVelocity, zAxis) {
 		this->xVelocity = horizonVelocity;
 		this->yVelocity = verticalVelocity;
 		this->gravity = gravity;

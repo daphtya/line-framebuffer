@@ -19,6 +19,7 @@
 #define LASER_OBJ 4
 #define EXPLOSION_OBJ 5
 #define PHYSICAL_OBJ 6
+#define BOMB_OBJ 7
 
 class Polygon : public Drawable
 {
@@ -30,6 +31,7 @@ class Polygon : public Drawable
     double rotation; // rad
     char id;         // polygon identifier
     int zAxis;
+    int xfill, yfill;
 
   public:
     Polygon()
@@ -40,6 +42,8 @@ class Polygon : public Drawable
         this->rotation = 0;
         this->id = NULL_OBJ;
         this->zAxis = 0;
+        this->xfill = -1;
+        this->yfill = -1;
     }
 
     Polygon(std::string filename, color c, char id, int zAxis = 0) : Polygon()
@@ -98,6 +102,11 @@ class Polygon : public Drawable
 
     int getZAxis() {
         return this->zAxis;
+    }
+
+    void setFillCoor(int x, int y){
+        this->xfill = x;
+        this->yfill = y;
     }
     
     void move(int dx, int dy)
@@ -232,7 +241,11 @@ class Polygon : public Drawable
         modelBuffer->clearScreen();
 
         this->drawLines(modelBuffer);
-        modelBuffer->floodfill(this->c);
+        if (this->xfill == -1) {
+            modelBuffer->floodfill(this->c);
+        } else {
+            modelBuffer->floodfill(this->c, new Coordinate(this->xfill, this->yfill));
+        }
         // Coordinate *current = new Coordinate(0, 0);
         // for (int y = 0; y < height; y++)
         // {
