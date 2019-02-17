@@ -91,9 +91,21 @@ public:
 		}
 	}
 
+	void moveWithoutAnchor(int dx, int dy) {
+		for (int i= 0; i < this->polygonNum; i++) {
+			this->polygonList[i]->moveWithoutAnchor(dx, dy);
+		}
+	}
+
 	void scale(double scaleFactor) {
 		for (int i= 0; i < this->polygonNum; i++) {
 			this->polygonList[i]->scale(scaleFactor);
+		}
+	}
+
+	void setAnchor(int x, int y) {
+		for (int i= 0; i < this->polygonNum; i++) {
+			this->polygonList[i]->setAnchor(x, y);
 		}
 	}
 
@@ -102,7 +114,6 @@ public:
 			this->polygonList[i]->draw(fb);
 		}
 	}
-	
 };
 
 

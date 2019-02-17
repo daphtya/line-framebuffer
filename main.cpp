@@ -40,19 +40,19 @@ void readInput(FrameBuffer *framebuffer, std::vector<Drawable *> *objects, bool 
         }
         else if (c == COMMAND_MOVE_LEFT)
         {
-            map->move(-3, 0);
+            map->moveWithoutAnchor(-3, 0);
         }
         else if (c == COMMAND_MOVE_RIGHT)
         {
-            map->move(3, 0);
+            map->moveWithoutAnchor(3, 0);
         }
         else if (c == COMMAND_MOVE_UP)
         {
-            map->move(0, -3);
+            map->moveWithoutAnchor(0, -3);
         }
         else if (c == COMMAND_MOVE_DOWN)
         {
-            map->move(0, 3);
+            map->moveWithoutAnchor(0, 3);
         }
         else if (c == COMMAND_ZOOM_IN)
         {
@@ -79,7 +79,7 @@ Composite* createMap(FrameBuffer* framebuffer){
         temp = "images/bangunanITB/"+listFile[i]+".point";
         building[i] = new Animated(temp, CWHITE, ENEMY_OBJ, false, 0, 0, 0, i);
         building[i]->setAnchor(0, 0);
-        building[i]->scale(6);
+        building[i]->scale(8);
         result->addAnimated(building[i]);
     }
     return result;
