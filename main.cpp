@@ -34,26 +34,26 @@ void readInput(FrameBuffer *framebuffer, std::vector<Drawable *> *objects, bool 
         {
             *run = false;
         }
-        else if (c == COMMAND_MOVE_LEFT)
-        {
-            Polygon *player = (Polygon *)objects->at(0);
-            player->move(-3, 0);
-        }
-        else if (c == COMMAND_MOVE_RIGHT)
-        {
-            Polygon *player = (Polygon *)objects->at(0);
-            player->move(3, 0);
-        }
-        else if (c == COMMAND_MOVE_UP)
-        {
-            Polygon *player = (Polygon *)objects->at(0);
-            player->move(-3, 0);
-        }
-        else if (c == COMMAND_MOVE_DOWN)
-        {
-            Polygon *player = (Polygon *)objects->at(0);
-            player->move(3, 0);
-        }
+        // else if (c == COMMAND_MOVE_LEFT)
+        // {
+        //     Polygon *player = (Polygon *)objects->at(0);
+        //     player->move(-3, 0);
+        // }
+        // else if (c == COMMAND_MOVE_RIGHT)
+        // {
+        //     Polygon *player = (Polygon *)objects->at(0);
+        //     player->move(3, 0);
+        // }
+        // else if (c == COMMAND_MOVE_UP)
+        // {
+        //     Polygon *player = (Polygon *)objects->at(0);
+        //     player->move(-3, 0);
+        // }
+        // else if (c == COMMAND_MOVE_DOWN)
+        // {
+        //     Polygon *player = (Polygon *)objects->at(0);
+        //     player->move(3, 0);
+        // }
     }
     endwin();
 }
@@ -61,13 +61,15 @@ void readInput(FrameBuffer *framebuffer, std::vector<Drawable *> *objects, bool 
 
 Composite* createMap(FrameBuffer* framebuffer){
     int buildingNum = 53;
-    std::string listFile[buildingNum] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+    std::string listFile[buildingNum] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
         "AA","AB","AC","AD","AE","AF","AG","AH","AI","AJ","AK","AL","AM","AN","AO","AP","AQ","AR","AS","AT","AU","AV","AW","AX","AY","AZ","BA"};
     Animated* building[buildingNum];
     Composite *result = new Composite(buildingNum, NULL_OBJ);
+    std::string temp;
     
     for (int i = 0; i < buildingNum; i++) {
-        building[i] = new Animated("images/bangunanITB/"+listFile[i]+".point", CGRAY, NULL_OBJ, false, 0, 0, 0, 0);
+        temp = "images/bangunanITB/"+listFile[i]+".point";
+        building[i] = new Animated(temp, CWHITE, NULL_OBJ, false, 0, 0, 0, i);
         result->addAnimated(building[i]);
     }
     return result;
@@ -110,8 +112,6 @@ int main(int argc, char **args)
     
     Composite* mapITB = createMap(framebuffer);
     objects->push_back(mapITB);
-
-    printf("AH");
 
     std::thread *t0 = new std::thread(readInput, framebuffer, objects, &run);
     std::thread *t1 = new std::thread(draw, framebuffer, objects, &run);
