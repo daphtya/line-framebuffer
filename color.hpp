@@ -4,6 +4,7 @@
 typedef unsigned int color;
 
 #define CBLACK 0x0
+#define CGRAY 0x00888888
 #define CWHITE 0x00FFFFFF
 #define CRED 0x00FF0000
 #define CBLUE 0x000000FF

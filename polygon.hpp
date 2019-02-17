@@ -247,11 +247,11 @@ class Polygon : public Drawable
         modelBuffer->clearScreen();
 
         this->drawLines(modelBuffer);
-        if (this->xfill == -1) {
-            modelBuffer->floodfill(this->c);
-        } else {
-            modelBuffer->floodfill(this->c, new Coordinate(this->xfill, this->yfill));
-        }
+        // if (this->xfill == -1) {
+        //     modelBuffer->floodfill(this->c);
+        // } else {
+        //     modelBuffer->floodfill(this->c, new Coordinate(this->xfill, this->yfill));
+        // }
         // Coordinate *current = new Coordinate(0, 0);
         // for (int y = 0; y < height; y++)
         /**
