@@ -22,11 +22,15 @@
 #define COMMAND_MOVE_RIGHT 'd'
 #define COMMAND_MOVE_UP 'w'
 #define COMMAND_MOVE_DOWN 's'
+#define COMMAND_ZOOM_IN '='
+#define COMMAND_ZOOM_OUT '-'
 
 void readInput(FrameBuffer *framebuffer, std::vector<Drawable *> *objects, bool *run)
 {
     initscr();
     timeout(-1);
+    Composite *map = (Composite *)objects->at(0);
+    
     while (*run)
     {
         char c = getch();
@@ -34,26 +38,30 @@ void readInput(FrameBuffer *framebuffer, std::vector<Drawable *> *objects, bool 
         {
             *run = false;
         }
-        // else if (c == COMMAND_MOVE_LEFT)
-        // {
-        //     Polygon *player = (Polygon *)objects->at(0);
-        //     player->move(-3, 0);
-        // }
-        // else if (c == COMMAND_MOVE_RIGHT)
-        // {
-        //     Polygon *player = (Polygon *)objects->at(0);
-        //     player->move(3, 0);
-        // }
-        // else if (c == COMMAND_MOVE_UP)
-        // {
-        //     Polygon *player = (Polygon *)objects->at(0);
-        //     player->move(-3, 0);
-        // }
-        // else if (c == COMMAND_MOVE_DOWN)
-        // {
-        //     Polygon *player = (Polygon *)objects->at(0);
-        //     player->move(3, 0);
-        // }
+        else if (c == COMMAND_MOVE_LEFT)
+        {
+            map->move(-3, 0);
+        }
+        else if (c == COMMAND_MOVE_RIGHT)
+        {
+            map->move(3, 0);
+        }
+        else if (c == COMMAND_MOVE_UP)
+        {
+            map->move(0, -3);
+        }
+        else if (c == COMMAND_MOVE_DOWN)
+        {
+            map->move(0, 3);
+        }
+        else if (c == COMMAND_ZOOM_IN)
+        {
+            map->scale(2);
+        }
+        else if (c == COMMAND_ZOOM_OUT)
+        {
+            map->scale(0.5);
+        }
     }
     endwin();
 }
@@ -64,12 +72,14 @@ Composite* createMap(FrameBuffer* framebuffer){
     std::string listFile[buildingNum] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
         "AA","AB","AC","AD","AE","AF","AG","AH","AI","AJ","AK","AL","AM","AN","AO","AP","AQ","AR","AS","AT","AU","AV","AW","AX","AY","AZ","BA"};
     Animated* building[buildingNum];
-    Composite *result = new Composite(buildingNum, NULL_OBJ);
+    Composite *result = new Composite(buildingNum, ENEMY_OBJ);
     std::string temp;
     
     for (int i = 0; i < buildingNum; i++) {
         temp = "images/bangunanITB/"+listFile[i]+".point";
-        building[i] = new Animated(temp, CWHITE, NULL_OBJ, false, 0, 0, 0, i);
+        building[i] = new Animated(temp, CWHITE, ENEMY_OBJ, false, 0, 0, 0, i);
+        building[i]->setAnchor(0, 0);
+        building[i]->scale(6);
         result->addAnimated(building[i]);
     }
     return result;

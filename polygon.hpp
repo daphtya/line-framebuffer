@@ -100,6 +100,11 @@ class Polygon : public Drawable
         return this->anchor;
     }
 
+    void setAnchor(int x, int y) {
+        this->anchor->setX(x);
+        this->anchor->setY(y);
+    }
+
     int getZAxis()
     {
         return this->zAxis;

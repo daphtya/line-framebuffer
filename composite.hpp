@@ -85,6 +85,18 @@ public:
 		}
 	}
 
+	void move(int dx, int dy) {
+		for (int i= 0; i < this->polygonNum; i++) {
+			this->polygonList[i]->move(dx, dy);
+		}
+	}
+
+	void scale(double scaleFactor) {
+		for (int i= 0; i < this->polygonNum; i++) {
+			this->polygonList[i]->scale(scaleFactor);
+		}
+	}
+
 	void draw(IFrameBuffer* fb) {
 		for (int i= 0; i < this->polygonNum; i++) {
 			this->polygonList[i]->draw(fb);
