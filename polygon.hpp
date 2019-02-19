@@ -144,6 +144,11 @@ class Polygon : public Drawable
         this->scaleFactor *= scaleFactor;
     }
 
+    void linearScale(double scaleFactor)
+    {
+        this->scaleFactor += scaleFactor;
+    }
+
     void scaleTo(double scaleFactor, double maxVelocity = 0)
     {
         if (this->scaleFactor > scaleFactor)
