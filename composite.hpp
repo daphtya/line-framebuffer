@@ -103,6 +103,18 @@ public:
 		}
 	}
 
+	void linearScale(double scaleFactor) {
+		for (int i= 0; i < this->polygonNum; i++) {
+			this->polygonList[i]->scale(scaleFactor);
+		}
+	}
+
+	void rotate(double rotation) {
+		for (int i= 0; i < this->polygonNum; i++) {
+			this->polygonList[i]->rotate(rotation);
+		}
+	}
+
 	void setAnchor(int x, int y) {
 		for (int i= 0; i < this->polygonNum; i++) {
 			this->polygonList[i]->setAnchor(x, y);
@@ -110,8 +122,11 @@ public:
 	}
 
 	void draw(IFrameBuffer* fb) {
+		FrameBuffer* temp = (FrameBuffer*) fb;
 		for (int i= 0; i < this->polygonNum; i++) {
-			this->polygonList[i]->draw(fb);
+			if (this->polygonList[i]->isOverlapping(new std::pair<Coordinate *, Coordinate *>(new Coordinate(0, 0), new Coordinate(temp->getXRes(), temp->getYRes()))))
+				
+				this->polygonList[i]->draw(fb);
 		}
 	}
 };

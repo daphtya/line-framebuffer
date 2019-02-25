@@ -98,7 +98,6 @@ class ModelBuffer : public IFrameBuffer
 			floodrec(start->getY(), start->getX(), c);
 		}
 
-
 	}
 
 	void floodrec(int i, int j, color c) {

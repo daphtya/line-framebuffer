@@ -24,6 +24,8 @@
 #define COMMAND_MOVE_DOWN 's'
 #define COMMAND_ZOOM_IN '='
 #define COMMAND_ZOOM_OUT '-'
+#define COMMAND_ROTATE_CLOCKWISE 'e'
+#define COMMAND_ROTATE_COUNTERCLOCKWISE 'q'
 
 void readInput(FrameBuffer *framebuffer, std::vector<Drawable *> *objects, bool *run)
 {
@@ -56,11 +58,19 @@ void readInput(FrameBuffer *framebuffer, std::vector<Drawable *> *objects, bool 
         }
         else if (c == COMMAND_ZOOM_IN)
         {
-            map->scale(2);
+            map->scale(1.1);
         }
         else if (c == COMMAND_ZOOM_OUT)
         {
-            map->scale(0.5);
+            map->scale(0.9);
+        }
+        else if (c == COMMAND_ROTATE_CLOCKWISE)
+        {
+            map->rotate(-PI/32);
+        }
+        else if (c == COMMAND_ROTATE_COUNTERCLOCKWISE)
+        {
+            map->rotate(PI/32);
         }
     }
     endwin();
@@ -79,8 +89,12 @@ Composite* createMap(FrameBuffer* framebuffer){
         temp = "images/bangunanITB/"+listFile[i]+".point";
         building[i] = new Animated(temp, CWHITE, ENEMY_OBJ, false, 0, 0, 0, i);
         building[i]->setAnchor(0, 0);
-        building[i]->scale(8);
+        building[i]->moveWithoutAnchor(-30, -40);
+        building[i]->move(400, 300);
+
+        building[i]->scale(4);
         result->addAnimated(building[i]);
+        // building[i]->setAnchor(400, 300);
     }
     return result;
 }
