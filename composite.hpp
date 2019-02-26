@@ -14,6 +14,9 @@ private:
 	Animated** polygonList;
 	int polygonNum;
 	int id;
+	Coordinate* mincoor;
+	Coordinate* maxcoor;
+
 
 public:
 	Composite() : Composite(10, 0) {}
@@ -121,13 +124,27 @@ public:
 		}
 	}
 
-	void draw(IFrameBuffer* fb) {
-		FrameBuffer* temp = (FrameBuffer*) fb;
+	void drawDirect(IFrameBuffer* fb) {
+		// FrameBuffer* temp = (FrameBuffer*) fb;
 		for (int i= 0; i < this->polygonNum; i++) {
-			if (this->polygonList[i]->isOverlapping(new std::pair<Coordinate *, Coordinate *>(new Coordinate(0, 0), new Coordinate(temp->getXRes(), temp->getYRes()))))
-				
-				this->polygonList[i]->draw(fb);
+			//if (this->polygonList[i]->isOverlapping(new std::pair<Coordinate *, Coordinate *>(new Coordinate(0, 0), new Coordinate(temp->getXRes(), temp->getYRes()))))	
+			this->polygonList[i]->draw(fb);
 		}
+	}
+
+	void setLimit(Coordinate* mincoor, Coordinate* maxcoor) {
+		this->mincoor = mincoor;
+		this->maxcoor = maxcoor;
+	}
+
+	void draw(IFrameBuffer* fb) {
+		int width = maxcoor->getX() - mincoor->getX();
+		int height = maxcoor->getY() - mincoor->getY();
+		ModelBuffer* merge = new ModelBuffer(width, height, mincoor->getX(), mincoor->getY());
+		merge->clearScreen();
+		this->drawDirect(merge);
+		merge->flush(fb);
+		delete merge;
 	}
 };
 

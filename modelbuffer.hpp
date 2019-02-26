@@ -91,6 +91,21 @@ class ModelBuffer : public IFrameBuffer
 		return CBLACK;
 	}
 
+	color lazyCheck(Coordinate* checkcoor) {
+		return lazyCheck(checkcoor->getX(), checkcoor->getY());
+	}
+
+	void priorityDraw(Coordinate *coordinate, color c, int priority)
+    {
+        //main idea: priority is put in the unused byte of color (unsigned int is 4 bytes while RGB chars uses 3 bytes)
+        int currPriority = this->lazyCheck(coordinate) >> 24;
+        if (currPriority <= priority)
+        {
+            c += priority << 24;
+            this->lazyDraw(coordinate, c);
+        }
+    }
+
 	void floodfill(color c, Coordinate* start = NULL) {
 		if (start == NULL) {
 			floodrec(this->height/2, this->width/2, c);
@@ -112,7 +127,7 @@ class ModelBuffer : public IFrameBuffer
 			floodrec(i, j+1, c); 
 	}
 
-	void flush(FrameBuffer *fb, int zAxis = 1)
+	void flush(IFrameBuffer *fb, int zAxis = 1)
 	{
 		for (int i = 0; i < this->height; i++)
 		{
@@ -121,7 +136,7 @@ class ModelBuffer : public IFrameBuffer
 				if (this->buffer[i][j] != 0)
 				{
 					Coordinate *coor = new Coordinate(this->xOffset + j, this->yOffset + i);
-					fb->priorityDraw(coor, this->buffer[i][j], zAxis);
+					fb->lazyDraw(coor, this->buffer[i][j]);
 					delete coor;
 				}
 			}
