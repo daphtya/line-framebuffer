@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "coordinate.hpp"
+#include "utils.hpp"
 #include "drawable.hpp"
 #include "framebuffer.hpp"
 #include "line.hpp"
@@ -32,6 +33,7 @@ class Polygon : public Drawable
     char id;         // polygon identifier
     int zAxis;
     int xfill, yfill;
+    bool fromLines;
 
   public:
     Polygon()
@@ -44,11 +46,13 @@ class Polygon : public Drawable
         this->zAxis = 0;
         this->xfill = -1;
         this->yfill = -1;
+        this->fromLines = false;
     }
 
-    Polygon(std::string filename, color c, char id, int zAxis = 0) : Polygon()
+    Polygon(std::string filename, color c, char id, int zAxis = 0, bool fromLines = false) : Polygon()
     {
         this->zAxis = zAxis;
+        this->fromLines = fromLines;
         std::ifstream f(filename);
         int x, y, minX, maxX, minY, maxY;
         bool first = true;
@@ -243,7 +247,7 @@ class Polygon : public Drawable
         return overlapX && overlapY;
     }
 
-    void draw(IFrameBuffer *framebuffer)
+    void draw(IFrameBuffer *framebuffer, bool filled=true)
     {
         std::pair<Coordinate *, Coordinate *> *boundingBox = this->getBoundingBox();
         int width = boundingBox->second->getX() - boundingBox->first->getX() + 1;
@@ -257,10 +261,14 @@ class Polygon : public Drawable
         modelBuffer->clearScreen();
 
         this->drawLines(modelBuffer);
-        if (this->xfill == -1) {
-            modelBuffer->floodfill(this->c);
+        if (!this->fromLines){
+            if (this->xfill == -1) {
+                modelBuffer->floodfill(this->c);
+            } else {
+                modelBuffer->floodfill(this->c, new Coordinate(this->xfill, this->yfill));
+            }
         } else {
-            modelBuffer->floodfill(this->c, new Coordinate(this->xfill, this->yfill));
+            //printf("I'm drawing the road!");
         }
         // Coordinate *current = new Coordinate(0, 0);
         // for (int y = 0; y < height; y++)
@@ -327,18 +335,26 @@ class Polygon : public Drawable
 
     void drawLines(ModelBuffer *modelBuffer)
     {
-        int nLines = this->points->size();
+        // if (!this->fromLines) {
+            int nLines = this->points->size();
 
-        for (int i = 0; i < nLines; i++)
-        {
-            Coordinate *c1 = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
-            Coordinate *c2 = this->points->at((i + 1) % nLines)->transform(this->scaleFactor, this->rotation, this->anchor);
-            Line *line = new Line(c1->getX(), c1->getY(), c2->getX(), c2->getY(), this->c, this->c);
-            line->draw(modelBuffer);
-            delete c1;
-            delete c2;
-            delete line;
-        }
+            for (int i = 0; i < nLines; i += this->fromLines ? 2 : 1)
+            {
+                Coordinate *c1 = this->points->at(i)->transform(this->scaleFactor, this->rotation, this->anchor);
+                Coordinate *c2 = this->points->at((i + 1) % nLines)->transform(this->scaleFactor, this->rotation, this->anchor);
+                Line *line = new Line(c1->getX(), c1->getY(), c2->getX(), c2->getY(), this->c, this->c);
+                line->draw(modelBuffer);
+                if (this->fromLines) {
+                    char c[50];
+                    memset(c, 0, 50);
+                    sprintf(c, "drawn %d, %d -> %d, %d\n", c1->getX(), c1->getY(), c2->getX(), c2->getY());
+                    flog(c);
+                }
+                delete c1;
+                delete c2;
+                delete line;
+            }
+        // } 
     }
 };
 

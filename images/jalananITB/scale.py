@@ -10,7 +10,7 @@ changedfiles = []
 
 try:
 	for filename in filenames:
-		if filename.split('.')[-1] == "point":
+		if filename.split('.')[-1] == "lines":
 			with open(filename, "r") as file:
 				filecontent = [[int(x)*scale for x in line.split()] for line in file.read().split('\n')]
 			with open(filename, "w") as file:

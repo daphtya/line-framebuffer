@@ -29,7 +29,7 @@ class Animated : public Polygon
     Animated(std::string filename, color c, char id, bool loop = false,
              int maxAnchorVelocity = 0,
              double maxScaleVelocity = 0,
-             double maxRotationVelocity = 0, int zAxis = 0) : Polygon(filename, c, id, zAxis)
+             double maxRotationVelocity = 0, int zAxis = 0, bool fromLines = false) : Polygon(filename, c, id, zAxis, fromLines)
     {
         this->loop = loop;
         this->hidden = false;
@@ -92,6 +92,11 @@ class Animated : public Polygon
     void hide()
     {
         this->hidden = true;
+    }
+
+    void toggleHidden() 
+    {
+        this->hidden = !this->hidden;
     }
 
     bool isHidden() {

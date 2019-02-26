@@ -71,10 +71,15 @@ void readInput(FrameBuffer *framebuffer, std::vector<Drawable *> *objects, bool 
         else if (c == COMMAND_ROTATE_COUNTERCLOCKWISE)
         {
             map->rotate(PI/32);
+        } else if (c == '1') {
+            map->getAnimatedList()[54]->toggleHidden(); //this part is hardcoded for path index
+        } else if (c == '2') {
+            map->getAnimatedList()[53]->toggleHidden(); //this part is hardcoded for path index
         }
     }
     endwin();
 }
+
 
 
 Composite* createMap(FrameBuffer* framebuffer, bool left = true){
@@ -82,16 +87,19 @@ Composite* createMap(FrameBuffer* framebuffer, bool left = true){
     std::string listFile[buildingNum] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
         "AA","AB","AC","AD","AE","AF","AG","AH","AI","AJ","AK","AL","AM","AN","AO","AP","AQ","AR","AS","AT","AU","AV","AW","AX","AY","AZ","BA"};
     Animated* building[buildingNum];
-    Composite *result = new Composite(buildingNum, ENEMY_OBJ);
+    Composite *result = new Composite(buildingNum+2, ENEMY_OBJ);
     std::string temp;
     
+
+
+
     for (int i = 0; i < buildingNum; i++) {
         temp = "images/bangunanITB/"+listFile[i]+".point";
         building[i] = new Animated(temp, CWHITE, ENEMY_OBJ, false, 0, 0, 0, i);
         if (left) {
             building[i]->setAnchor(0, 0);
         } else {
-            building[i]->setAnchor(framebuffer->getXRes()/2, 0);
+            building[i]->setAnchor(framebuffer->getXRes()*3/4, 0);
         }
         building[i]->moveWithoutAnchor(-150, -200);
         building[i]->move(150, 200);
@@ -100,9 +108,34 @@ Composite* createMap(FrameBuffer* framebuffer, bool left = true){
         result->addAnimated(building[i]);
         //building[i]->setAnchor(400, 300);
     }
+
+    Animated *path = new Animated("images/jalananITB/jalanan.lines", CRED, ENEMY_OBJ, false, 0, 0, 0, -2, true);
+    Animated *electric = new Animated("images/jalananITB/electric.lines", CYELLOW, ENEMY_OBJ, false, 0, 0, 0, -1, true);
     if (left) {
+        path->setAnchor(0,0);
+        path->moveWithoutAnchor(-150, -200);
+        path->move(150,200);
+        path->scale(0.5);
+        electric->setAnchor(0,0);
+        electric->moveWithoutAnchor(-150, -200);
+        electric->move(150,200);
+        electric->scale(0.5);
+        electric->hide();
+        result->addAnimated(electric);
+        result->addAnimated(path);
         result->setLimit(new Coordinate(0,0), new Coordinate(framebuffer->getXRes()/2, framebuffer->getYRes()));
     } else {
+        path->setAnchor(framebuffer->getXRes()*3/4,0);
+        path->moveWithoutAnchor(-150, -200);
+        path->move(150,200);
+        path->scale(0.5);
+        electric->setAnchor(framebuffer->getXRes()*3/4,0);
+        electric->moveWithoutAnchor(-150, -200);
+        electric->move(150,200);
+        electric->scale(0.5);
+        electric->hide();
+        result->addAnimated(electric);
+        result->addAnimated(path);
         result->setLimit(new Coordinate(framebuffer->getXRes()/2, 0), new Coordinate(framebuffer->getXRes(), framebuffer->getYRes()));
     }
     return result;
